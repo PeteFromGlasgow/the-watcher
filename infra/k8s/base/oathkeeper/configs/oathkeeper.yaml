@@ -21,7 +21,7 @@ authenticators:
       jwks_urls:
         - http://hydra:4444/.well-known/jwks.json
       trusted_issuers:
-        - http://in-the-black.localhost/api/v1/oauth2
+        - http://watcher.localhost/api/v1/oauth2
 authorizers:
   allow:
     enabled: true

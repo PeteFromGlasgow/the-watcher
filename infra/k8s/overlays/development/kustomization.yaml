@@ -1,8 +1,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# Apply the "in-the-black" namespace to all resources
-namespace: in-the-black
+# Apply the "watcher" namespace to all resources
+namespace: watcher
 
 # List of resources to include in the deployment
 resources:
@@ -16,6 +16,8 @@ resources:
   - ../../base/api-gateway
   - ../../base/db-migrations
   - ../../base/api
+  - ../../base/flaresolverr
+  - ../../base/clip-service
   - namespace.yaml # The namespace itself must be created
   - postgres-secret.yaml
   - kratos-secret.yaml

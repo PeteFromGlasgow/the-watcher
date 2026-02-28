@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: ghcr.io/petefromglasgow/in-the-black/api
+          image: ghcr.io/petefromglasgow/the-watcher/api
           ports:
             - containerPort: 3000
           env:

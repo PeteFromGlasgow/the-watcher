@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
         - name: db-migrations
-          image: ghcr.io/petefromglasgow/in-the-black/db-migrations
+          image: ghcr.io/petefromglasgow/the-watcher/db-migrations
           env:
             - name: DATABASE_URL
               value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)"
