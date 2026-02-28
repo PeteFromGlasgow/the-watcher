@@ -42,27 +42,6 @@ custom_build(
 )
 
 custom_build(
-    'ghcr.io/petefromglasgow/in-the-black/webapp',
-    'docker build -t $EXPECTED_REF -f ./packages/webapp/Dockerfile --target build .',
-    deps=['./packages/webapp', './pnpm-workspace.yaml', './package.json', './pnpm-lock.yaml'],
-    entrypoint=['pnpm', '--filter=nuxt-app', 'run', 'dev'],
-    live_update=[
-        sync(
-            './packages/webapp/.output',
-            '/app/packages/webapp/.output'
-        ),
-        sync(
-            './packages/webapp/app',
-            '/app/packages/webapp/app',
-        ),
-        sync(
-            './packages/webapp/public',
-            '/app/packages/webapp/public',
-        )
-    ]
-)
-
-custom_build(
     'ghcr.io/petefromglasgow/in-the-black/db-migrations',
     'docker build -t $EXPECTED_REF -f ./packages/db/Dockerfile .',
     deps=['./packages/db', './pnpm-workspace.yaml', './package.json', './pnpm-lock.yaml']
@@ -99,7 +78,6 @@ default_registry(DEFAULT_REGISTRY)
 # This section will be populated as we add services
 # Port forwards have been replaced by Kubernetes Gateway API
 k8s_resource("api-gateway", labels="application")
-k8s_resource("webapp", labels="application")
 k8s_resource("api", labels="application")
 
 k8s_resource("hydra", labels="auth")

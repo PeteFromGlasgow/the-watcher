@@ -14,7 +14,6 @@ resources:
   - ../../base/mailpit
   - ../../base/kratos-admin-ui
   - ../../base/api-gateway
-  - ../../base/webapp
   - ../../base/db-migrations
   - ../../base/api
   - namespace.yaml # The namespace itself must be created
@@ -23,8 +22,3 @@ resources:
   - hydra-secret.yaml
   - keto-secret.yaml
 
-configMapGenerator:
-  - name: webapp-config
-    behavior: merge
-    envs:
-      - webapp-configuration.env

@@ -38,27 +38,8 @@ jobs:
       run: pnpm --filter @in-the-black/db db:migrate
     - name: Run database seeds
       run: pnpm --filter @in-the-black/db db:seed
-    - run: cd packages/browser && pnpm exec playwright install
     - run: pnpm lint
-    - run: pnpm test:all
-
-  test-browser:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        browser: [chromium, firefox, webkit]
-    steps:
-    - uses: actions/checkout@v4
-    - uses: pnpm/action-setup@v4
-    - name: Use Node.js 22
-      uses: actions/setup-node@v4
-      with:
-        node-version: "22"
-        cache: 'pnpm'
-    - run: pnpm install
-    - run: pnpm build
-    - run: cd packages/browser && pnpm exec playwright install ${{ matrix.browser }} && pnpm exec playwright install-deps ${{ matrix.browser }}
-    - run: cd packages/browser && pnpm exec vitest --run --browser=${{ matrix.browser }}
+    - run: pnpm test
 
   trivy-scan:
     runs-on: ubuntu-latest

@@ -14,7 +14,6 @@ resources:
   - ../../base/mailpit
   - ../../base/kratos-admin-ui
   - ../../base/api-gateway
-  - ../../base/webapp
   - ../../base/db-migrations
   - ../../base/api
   - namespace.yaml # The namespace itself must be created
@@ -25,10 +24,6 @@ resources:
   - gateway.yaml
 
 configMapGenerator:
-  - name: webapp-config
-    behavior: merge
-    envs:
-      - webapp-config.env
   - name: kratos-config
     behavior: replace
     files:
