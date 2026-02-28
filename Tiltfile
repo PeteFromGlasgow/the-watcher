@@ -24,7 +24,7 @@ custom_build(
     'ghcr.io/petefromglasgow/in-the-black/api-gateway',
     'docker build -t $EXPECTED_REF -f ./packages/api-gateway/Dockerfile --target build .',
     deps=['./packages/api-gateway', './pnpm-workspace.yaml', './package.json', './pnpm-lock.yaml'],
-    entrypoint=['pnpm', '--filter=@in-the-black/api-gateway', 'run', 'start:dev'],
+    entrypoint=['pnpm', '--filter=@watcher/api-gateway', 'run', 'start:dev'],
     live_update=[
         sync(
             './packages/api-gateway/dist',
@@ -51,7 +51,7 @@ custom_build(
     'ghcr.io/petefromglasgow/in-the-black/api',
     'docker build -t $EXPECTED_REF -f ./packages/api/Dockerfile --target build .',
     deps=['./packages/api', './pnpm-workspace.yaml', './package.json', './pnpm-lock.yaml'],
-    entrypoint=['pnpm', '--filter=@in-the-black/api', 'run', 'start:dev'],
+    entrypoint=['pnpm', '--filter=@watcher/api', 'run', 'start:dev'],
     live_update=[
         sync(
             './packages/api/dist',

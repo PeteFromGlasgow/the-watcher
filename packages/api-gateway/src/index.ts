@@ -23,7 +23,7 @@ export const buildApp = async () => {
     swagger: {
       info: {
         title: 'API Gateway',
-        description: 'API Gateway for the in-the-black project',
+        description: 'API Gateway for The Watcher',
         version: '1.0.0'
       },
       host: `${host}:${port}`,

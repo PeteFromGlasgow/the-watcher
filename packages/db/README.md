@@ -1,6 +1,6 @@
 # Database Package
 
-This package contains the database migrations and seeds for the In the Black application.
+This package contains the database migrations and seeds for The Watcher.
 
 ## Development
 
@@ -11,7 +11,7 @@ The database schema is managed using `knex`. The following commands are availabl
 To create a new migration file, run the following command from the root of the monorepo:
 
 ```bash
-pnpm --filter @in-the-black/db run db:migrate:make <migration_name>
+pnpm --filter @watcher/db run db:migrate:make <migration_name>
 ```
 
 Replace `<migration_name>` with a descriptive name for your migration (e.g., `create_accounts_table`).
@@ -23,7 +23,7 @@ When running the development environment with `tilt up`, migrations are automati
 To manually run the latest migrations, you can use the following command:
 
 ```bash
-pnpm --filter @in-the-black/db run db:migrate
+pnpm --filter @watcher/db run db:migrate
 ```
 
 ### Seeding the Database
@@ -31,4 +31,4 @@ pnpm --filter @in-the-black/db run db:migrate
 To populate the database with seed data, run:
 
 ```bash
-pnpm --filter @in-the-black/db run db:seed
+pnpm --filter @watcher/db run db:seed

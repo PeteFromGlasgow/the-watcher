@@ -26,15 +26,15 @@ COPY . .
 
 # Build and create a clean production-only package using pnpm deploy.
 # It's more efficient to filter the build command as well.
-RUN pnpm --filter=@in-the-black/api... run build
-RUN pnpm deploy --filter=@in-the-black/api /prod/api
+RUN pnpm --filter=@watcher/api... run build
+RUN pnpm deploy --filter=@watcher/api /prod/api
 
 # ---- Production Stage ----
 # Creates a minimal, secure image for running the service.
 FROM debian:${DEBIAN_VERSION} AS api
 
 # Best Practice: Add metadata labels to your image.
-LABEL org.opencontainers.image.source=https://github.com/PeteFromGlasgow/in-the-black
+LABEL org.opencontainers.image.source=https://github.com/PeteFromGlasgow/the-watcher
 
 WORKDIR /usr/src/app
 

@@ -1,5 +1,5 @@
 {
-  "name": "@in-the-black/api",
+  "name": "@watcher/api",
   "version": "0.0.0",
   "private": true,
   "main": "dist/src/index.js",

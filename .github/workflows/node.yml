@@ -35,9 +35,9 @@ jobs:
     - run: pnpm install
     - run: pnpm build
     - name: Run database migrations
-      run: pnpm --filter @in-the-black/db db:migrate
+      run: pnpm --filter @watcher/db db:migrate
     - name: Run database seeds
-      run: pnpm --filter @in-the-black/db db:seed
+      run: pnpm --filter @watcher/db db:seed
     - run: pnpm lint
     - run: pnpm test
 

@@ -123,7 +123,7 @@ importers:
 
   packages/cli:
     dependencies:
-      '@in-the-black/shared-logic':
+      '@watcher/shared-logic':
         specifier: workspace:*
         version: link:../core
       commander:

@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { getHelloWorld } from '@in-the-black/shared-logic'
+import { getHelloWorld } from '@watcher/shared-logic'
 import { registerCurrencies } from './commands/currencies.js'
 import { readFile, writeFile } from 'fs/promises'
 import { homedir } from 'os'
