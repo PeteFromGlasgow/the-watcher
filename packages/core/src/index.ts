@@ -3,3 +3,18 @@ export function getHelloWorld(output: (message: string) => void) {
     output(`Hello ${name}!`)
   }
 }
+
+export type {
+  Listing,
+  ListingImage,
+  Watch,
+  WatchStatus,
+  TransportType,
+  TransportConfig,
+  Adapter,
+  AdapterResult,
+  Notifier,
+  NotificationPayload,
+  PipelineResult,
+  PipelineStatus
+} from './types/index.js'
