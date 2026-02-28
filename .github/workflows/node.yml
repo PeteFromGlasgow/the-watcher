@@ -10,11 +10,11 @@ jobs:
         node-version: [22.x, 23.x]
     services:
       postgres:
-        image: postgres:16
+        image: pgvector/pgvector:pg17
         env:
-          POSTGRES_USER: intheblack
+          POSTGRES_USER: watcher
           POSTGRES_PASSWORD: testpassword
-          POSTGRES_DB: intheblack_test
+          POSTGRES_DB: watcher_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -23,7 +23,7 @@ jobs:
         ports:
           - 5432:5432
     env:
-      DATABASE_URL: postgresql://intheblack:testpassword@localhost:5432/intheblack_test
+      DATABASE_URL: postgresql://watcher:testpassword@localhost:5432/watcher_test
     steps:
     - uses: actions/checkout@v4
     - uses: pnpm/action-setup@v4
@@ -36,8 +36,6 @@ jobs:
     - run: pnpm build
     - name: Run database migrations
       run: pnpm --filter @watcher/db db:migrate
-    - name: Run database seeds
-      run: pnpm --filter @watcher/db db:seed
     - run: pnpm lint
     - run: pnpm test
 
