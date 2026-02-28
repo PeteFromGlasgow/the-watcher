@@ -12,6 +12,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["migrations/**/*.ts", "knexfile.ts"],
+  "include": ["migrations/**/*.ts", "knexfile.ts", "src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }
