@@ -1,0 +1,189 @@
+[
+  {
+    "id": "api-gateway-public-health",
+    "match": {
+      "url": "http://in-the-black.localhost/api/v1/",
+      "methods": [
+        "GET"
+      ]
+    },
+    "authenticators": [
+      {
+        "handler": "anonymous"
+      }
+    ],
+    "authorizer": {
+      "handler": "allow"
+    },
+    "mutators": [
+      {
+        "handler": "noop"
+      }
+    ],
+    "upstream": {
+      "url": "http://api-gateway:3000"
+    }
+  },
+  {
+    "id": "api-gateway-public-signup",
+    "match": {
+      "url": "http://in-the-black.localhost/api/v1/signup",
+      "methods": [
+        "POST",
+        "DELETE"
+      ]
+    },
+    "authenticators": [
+      {
+        "handler": "anonymous"
+      }
+    ],
+    "authorizer": {
+      "handler": "allow"
+    },
+    "mutators": [
+      {
+        "handler": "noop"
+      }
+    ],
+    "upstream": {
+      "url": "http://api-gateway:3000"
+    }
+  },
+  {
+    "id": "api-gateway-protected-accounts",
+    "match": {
+      "url": "http://in-the-black.localhost/api/v1/accounts<.*>",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ]
+    },
+    "authenticators": [
+      {
+        "handler": "cookie_session"
+      },
+      {
+        "handler": "jwt"
+      }
+    ],
+    "authorizer": {
+      "handler": "allow"
+    },
+    "mutators": [
+      {
+        "handler": "header",
+        "config": {
+          "headers": {
+            "X-Subject": "{{ print .Subject }}"
+          }
+        }
+      }
+    ],
+    "upstream": {
+      "url": "http://api-gateway:3000"
+    }
+  },
+  {
+    "id": "api-gateway-protected-account-types",
+    "match": {
+      "url": "http://in-the-black.localhost/api/v1/account-types<.*>",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ]
+    },
+    "authenticators": [
+      {
+        "handler": "cookie_session"
+      },
+      {
+        "handler": "jwt"
+      }
+    ],
+    "authorizer": {
+      "handler": "allow"
+    },
+    "mutators": [
+      {
+        "handler": "header",
+        "config": {
+          "headers": {
+            "X-Subject": "{{ print .Subject }}"
+          }
+        }
+      }
+    ],
+    "upstream": {
+      "url": "http://api-gateway:3000"
+    }
+  },
+  {
+    "id": "api-gateway-protected-currencies",
+    "match": {
+      "url": "http://in-the-black.localhost/api/v1/currencies<.*>",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH"
+      ]
+    },
+    "authenticators": [
+      {
+        "handler": "cookie_session"
+      },
+      {
+        "handler": "jwt"
+      }
+    ],
+    "authorizer": {
+      "handler": "allow"
+    },
+    "mutators": [
+      {
+        "handler": "header",
+        "config": {
+          "headers": {
+            "X-Subject": "{{ print .Subject }}"
+          }
+        }
+      }
+    ],
+    "upstream": {
+      "url": "http://api-gateway:3000"
+    }
+  },
+  {
+    "id": "api-gateway-cors",
+    "match": {
+      "url": "http://in-the-black.localhost/api/v1/<.*>",
+      "methods": [
+        "OPTIONS"
+      ]
+    },
+    "authenticators": [
+      {
+        "handler": "anonymous"
+      }
+    ],
+    "authorizer": {
+      "handler": "allow"
+    },
+    "mutators": [
+      {
+        "handler": "noop"
+      }
+    ],
+    "upstream": {
+      "url": "http://api-gateway:3000"
+    }
+  }
+]

@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keto
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keto
+  template:
+    metadata:
+      labels:
+        app: keto
+    spec:
+      initContainers:
+        - name: keto-migrate
+          image: oryd/keto:v25.4.0
+          args:
+            - migrate
+            - up
+            - -c
+            - /etc/config/keto/keto.yaml
+            - -y
+          envFrom:
+            - secretRef:
+                name: keto-secret
+          volumeMounts:
+            - name: keto-config
+              mountPath: /etc/config/keto
+      containers:
+        - name: keto
+          image: oryd/keto:v25.4.0
+          args:
+            - serve
+            - -c
+            - /etc/config/keto/keto.yaml
+          ports:
+            - name: http-read
+              containerPort: 4466
+            - name: http-write
+              containerPort: 4467
+          envFrom:
+            - secretRef:
+                name: keto-secret
+          volumeMounts:
+            - name: keto-config
+              mountPath: /etc/config/keto
+      volumes:
+        - name: keto-config
+          configMap:
+            name: keto-config

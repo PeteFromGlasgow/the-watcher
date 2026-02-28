@@ -1,0 +1,33 @@
+{
+  "name": "@in-the-black/cli",
+  "version": "1.0.1",
+  "description": "Command-line interface for the in-the-black project",
+  "main": "dist/cli.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "vitest --run"
+  },
+  "keywords": [],
+  "bin": {
+    "in-the-black": "dist/cli.js"
+  },
+  "dependencies": {
+    "@in-the-black/shared-logic": "workspace:*",
+    "commander": "^14.0.2",
+    "open": "^11.0.0",
+    "openid-client": "^6.8.1"
+  },
+  "author": "Peter Kinnaird <peter@kinnaird.scot>",
+  "license": "ISC",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "packageManager": "pnpm@10.6.4",
+  "devDependencies": {
+    "@types/node": "^25.0.9",
+    "@types/open": "^6.2.1",
+    "@vitest/coverage-v8": "4.0.17",
+    "vitest": "^4.0.17"
+  }
+}

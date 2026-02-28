@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kratos-admin-ui
+  labels:
+    app: kratos-admin-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kratos-admin-ui
+  template:
+    metadata:
+      labels:
+        app: kratos-admin-ui
+    spec:
+      containers:
+        - name: kratos-admin-ui
+          image: ghcr.io/dfoxg/kratos-admin-ui:v2.6.0
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: KRATOS_ADMIN_URL
+              value: "http://kratos.in-the-black.svc.cluster.local:4434"
+            - name: KRATOS_PUBLIC_URL
+              value: "http://kratos.in-the-black.svc.cluster.local:4433"

@@ -1,0 +1,38 @@
+serve:
+  proxy:
+    port: 4455
+  api:
+    port: 4456
+access_rules:
+  repositories:
+    - file:///etc/config/oathkeeper/access-rules.json
+authenticators:
+  anonymous:
+    enabled: true
+  noop:
+    enabled: true
+  cookie_session:
+    enabled: true
+    config:
+      check_session_url: http://kratos:4434/sessions/whoami
+  jwt:
+    enabled: true
+    config:
+      jwks_urls:
+        - http://hydra:4444/.well-known/jwks.json
+      trusted_issuers:
+        - http://in-the-black.localhost/api/v1/oauth2
+authorizers:
+  allow:
+    enabled: true
+mutators:
+  noop:
+    enabled: true
+  header:
+    enabled: true
+    config:
+      headers:
+        User-ID: "{{ .Subject }}"
+        User-Email: "{{ .Extra.ext.identity.traits.email }}"
+        User-Display-Name: "{{ .Extra.ext.identity.traits.displayName }}"
+

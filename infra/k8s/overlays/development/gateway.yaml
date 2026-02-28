@@ -1,0 +1,218 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: local-gateway
+  namespace: in-the-black
+spec:
+  gatewayClassName: eg
+  listeners:
+  - name: web
+    port: 80
+    protocol: HTTP
+    allowedRoutes:
+      namespaces:
+        from: Same
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: webapp-route
+  namespace: in-the-black
+spec:
+  parentRefs:
+  - name: local-gateway
+  hostnames:
+  - "in-the-black.localhost"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api/v1/identity
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
+    backendRefs:
+    - name: kratos
+      port: 4433
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api/v1/oauth2
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
+    backendRefs:
+    - name: hydra
+      port: 4444
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api/v1
+    backendRefs:
+    - name: oathkeeper
+      port: 4455
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: webapp
+      port: 3000
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: hydra-route
+  namespace: in-the-black
+spec:
+  parentRefs:
+  - name: local-gateway
+  hostnames:
+  - "hydra.localhost"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: hydra
+      port: 4444
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: hydra-admin-route
+  namespace: in-the-black
+spec:
+  parentRefs:
+  - name: local-gateway
+  hostnames:
+  - "hydra-admin.localhost"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: hydra
+      port: 4445
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: kratos-route
+  namespace: in-the-black
+spec:
+  parentRefs:
+  - name: local-gateway
+  hostnames:
+  - "kratos.localhost"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: kratos
+      port: 4433
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: kratos-admin-route
+  namespace: in-the-black
+spec:
+  parentRefs:
+  - name: local-gateway
+  hostnames:
+  - "kratos-admin.localhost"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: kratos
+      port: 4434
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: oathkeeper-route
+  namespace: in-the-black
+spec:
+  parentRefs:
+  - name: local-gateway
+  hostnames:
+  - "oathkeeper.localhost"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: oathkeeper
+      port: 4455
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: oathkeeper-api-route
+  namespace: in-the-black
+spec:
+  parentRefs:
+  - name: local-gateway
+  hostnames:
+  - "oathkeeper-api.localhost"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: oathkeeper
+      port: 4456
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: mailpit-route
+  namespace: in-the-black
+spec:
+  parentRefs:
+  - name: local-gateway
+  hostnames:
+  - "mail.localhost"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: mailpit
+      port: 8025
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: kratos-ui-route
+  namespace: in-the-black
+spec:
+  parentRefs:
+  - name: local-gateway
+  hostnames:
+  - "kratos-ui.localhost"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: kratos-admin-ui
+      port: 8080

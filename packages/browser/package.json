@@ -1,0 +1,27 @@
+{
+  "name": "@in-the-black/browser",
+  "version": "1.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.js",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "lint": "eslint",
+    "test": "vitest --run --browser=chromium"
+  },
+  "author": "Peter Kinnaird <peter@kinnaird.scot>",
+  "license": "ISC",
+  "description": "A browser-compatible version of the in-the-black library",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "packageManager": "pnpm@10.7.1",
+  "devDependencies": {
+    "@in-the-black/shared-logic": "workspace:*",
+    "@vitest/browser": "^4.0.17",
+    "@vitest/browser-playwright": "^4.0.17",
+    "playwright": "^1.58.1",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.17"
+  }
+}

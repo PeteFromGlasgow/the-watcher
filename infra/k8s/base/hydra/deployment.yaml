@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hydra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hydra
+  template:
+    metadata:
+      labels:
+        app: hydra
+    spec:
+      initContainers:
+        - name: hydra-migrate
+          image: oryd/hydra:v25.4.0
+          args:
+            - migrate
+            - sql
+            - -e
+            - --yes
+          envFrom:
+            - secretRef:
+                name: hydra-secret
+      containers:
+        - name: hydra
+          image: oryd/hydra:v25.4.0
+          ports:
+            - name: http-public
+              containerPort: 4444
+            - name: http-admin
+              containerPort: 4445
+          envFrom:
+            - secretRef:
+                name: hydra-secret

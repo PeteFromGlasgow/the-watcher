@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kratos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kratos
+  template:
+    metadata:
+      labels:
+        app: kratos
+    spec:
+      initContainers:
+        - name: kratos-migrate
+          image: oryd/kratos:v25.4.0
+          args:
+            - migrate
+            - sql
+            - -e
+            - --yes
+          env:
+            - name: DSN
+              valueFrom:
+                secretKeyRef:
+                  name: kratos-secret
+                  key: DSN
+          volumeMounts:
+            - name: kratos-config
+              mountPath: /etc/config/kratos
+      containers:
+        - name: kratos
+          image: oryd/kratos:v25.4.0
+          command:
+            - kratos
+            - serve
+            - -c
+            - /etc/config/kratos/kratos.yaml
+          ports:
+            - name: http-public
+              containerPort: 4433
+            - name: http-admin
+              containerPort: 4434
+          env:
+            - name: DSN
+              valueFrom:
+                secretKeyRef:
+                  name: kratos-secret
+                  key: DSN
+          volumeMounts:
+            - name: kratos-config
+              mountPath: /etc/config/kratos
+      volumes:
+        - name: kratos-config
+          configMap:
+            name: kratos-config

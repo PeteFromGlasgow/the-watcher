@@ -1,0 +1,8 @@
+node_modules/
+coverage/
+.aider*
+docs/.vitepress/dist
+docs/.vitepress/cache
+packages/webapp/.nuxt
+packages/webapp/node-compile-cache/
+packages/*/dist

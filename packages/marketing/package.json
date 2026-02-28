@@ -1,0 +1,29 @@
+{
+  "name": "@in-the-black/marketing",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "lint": "eslint",
+    "test": "vitest --run"
+  },
+  "author": "Peter Kinnaird <peter@kinnaird.scot>",
+  "repository": "https://github.com/PeteFromGlasgow/in-the-black.git",
+  "license": "ISC",
+  "description": "Marketing landing page for In The Black",
+  "dependencies": {
+    "@astrojs/mdx": "^4.3.13",
+    "@astrojs/rss": "^4.0.15",
+    "astro": "^5.5.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.6",
+    "@tailwindcss/vite": "^4.1.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

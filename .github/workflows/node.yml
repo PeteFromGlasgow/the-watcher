@@ -1,0 +1,85 @@
+name: PNPM Recursive Build & Test
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22.x, 23.x]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: intheblack
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: intheblack_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    env:
+      DATABASE_URL: postgresql://intheblack:testpassword@localhost:5432/intheblack_test
+    steps:
+    - uses: actions/checkout@v4
+    - uses: pnpm/action-setup@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'pnpm'
+    - run: pnpm install
+    - run: pnpm build
+    - name: Run database migrations
+      run: pnpm --filter @in-the-black/db db:migrate
+    - name: Run database seeds
+      run: pnpm --filter @in-the-black/db db:seed
+    - run: cd packages/browser && pnpm exec playwright install
+    - run: pnpm lint
+    - run: pnpm test:all
+
+  test-browser:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: pnpm/action-setup@v4
+    - name: Use Node.js 22
+      uses: actions/setup-node@v4
+      with:
+        node-version: "22"
+        cache: 'pnpm'
+    - run: pnpm install
+    - run: pnpm build
+    - run: cd packages/browser && pnpm exec playwright install ${{ matrix.browser }} && pnpm exec playwright install-deps ${{ matrix.browser }}
+    - run: cd packages/browser && pnpm exec vitest --run --browser=${{ matrix.browser }}
+
+  trivy-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: pnpm/action-setup@v4
+    - name: Use Node.js 22
+      uses: actions/setup-node@v4
+      with:
+        node-version: "22"
+        cache: 'pnpm'
+    - run: pnpm install
+    - name: Run Trivy vulnerability scanner for filesystem dependencies
+      # Scans the entire filesystem, including pnpm-lock.yaml, for library vulnerabilities
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'table'
+        exit-code: '1'
+        ignore-unfixed: true
+        vuln-type: 'library'
+        severity: 'CRITICAL,HIGH'
+

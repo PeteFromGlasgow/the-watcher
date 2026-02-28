@@ -1,0 +1,25 @@
+{
+  "name": "@in-the-black/shared-logic",
+  "version": "0.0.1",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p .",
+    "lint": "eslint",
+    "test": "vitest --run",
+    "coverage": "vitest --run --coverage"
+  },
+  "author": "Peter Kinnaird <peter@kinnaird.scot>",
+  "repository": "https://github.com/PeteFromGlasgow/in-the-black.git",
+  "license": "ISC",
+  "description": "Shared logic for the in-the-black project",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "packageManager": "pnpm@10.6.4+sha512.da3d715bfd22a9a105e6e8088cfc7826699332ded60c423b14ec613a185f1602206702ff0fe4c438cb15c979081ce4cb02568e364b15174503a63c7a8e2a5f6c",
+  "devDependencies": {
+    "@vitest/coverage-v8": "4.0.17",
+    "vitest": "^4.0.17"
+  }
+}

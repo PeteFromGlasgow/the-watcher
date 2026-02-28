@@ -1,0 +1,149 @@
+---
+const items = [
+  { name: 'Acrylic Paint Set', amount: '18.50', pot: 'Art Supplies', color: 'violet' },
+  { name: 'Canvas 40x50cm x2', amount: '12.00', pot: 'Art Supplies', color: 'violet' },
+  { name: 'Running Socks (3-pack)', amount: '9.99', pot: 'Running', color: 'emerald' },
+  { name: 'Sketch Pad A4', amount: '6.50', pot: 'Art Supplies', color: 'violet' },
+  { name: 'Energy Gels x6', amount: '7.80', pot: 'Running', color: 'emerald' }
+]
+
+const pots = [
+  { name: 'Art Supplies', path: 'Hobbies &rsaquo; Painting', color: 'violet', total: '37.00', icon: '&#x1F3A8;' },
+  { name: 'Running', path: 'Hobbies &rsaquo; Running', color: 'emerald', total: '17.79', icon: '&#x1F3C3;' }
+]
+---
+
+<section class="border-t border-slate-dark/50 py-20 md:py-28" aria-labelledby="receipt-heading">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="mb-16 text-center" data-reveal>
+      <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-violet/20 bg-violet/10 px-4 py-1.5 text-sm text-violet-light">
+        See It In Action
+      </div>
+      <h2 id="receipt-heading" class="mb-4 font-serif text-3xl font-bold text-white md:text-4xl">From receipt to budget in&nbsp;seconds</h2>
+      <p class="mx-auto max-w-2xl text-lg text-slate-light">
+        AI reads your receipt, extracts every line item, and files each one
+        into the right budget pot &mdash; automatically.
+      </p>
+    </div>
+
+    <div class="receipt-demo relative mx-auto max-w-4xl" id="receipt-demo">
+      <div class="grid items-start gap-8 md:grid-cols-2">
+        <!-- Receipt side -->
+        <div class="relative">
+          <div class="receipt-paper relative overflow-hidden rounded-2xl border border-slate-dark bg-deep-navy p-6 shadow-2xl shadow-midnight/50">
+            <!-- Scan line overlay -->
+            <div class="scan-line"></div>
+
+            <!-- Receipt header -->
+            <div class="mb-4 border-b border-dashed border-slate-dark pb-4 text-center">
+              <div class="font-mono text-xs tracking-widest text-slate-mid">RECEIPT</div>
+              <div class="mt-1 text-sm font-semibold text-white">Hobby Craft &amp; Sports</div>
+              <div class="mt-0.5 font-mono text-xs text-slate-mid">15 Jan 2026 &middot; 14:32</div>
+            </div>
+
+            <!-- Line items -->
+            <div class="space-y-0" id="receipt-items">
+              {items.map(item => (
+                <div class="line-item flex items-center justify-between border-b border-slate-dark/30 py-2.5">
+                  <div class="flex items-center gap-3">
+                    <div class:list={[
+                      'h-2 w-2 rounded-full',
+                      item.color === 'emerald' ? 'bg-emerald' : item.color === 'gold' ? 'bg-gold' : item.color === 'violet' ? 'bg-violet' : 'bg-sky'
+                    ]} aria-hidden="true"></div>
+                    <span class="text-sm text-ice">{item.name}</span>
+                  </div>
+                  <span class="font-mono text-sm text-white">&pound;{item.amount}</span>
+                </div>
+              ))}
+            </div>
+
+            <!-- Total -->
+            <div class="mt-4 flex items-center justify-between border-t border-slate-dark pt-4">
+              <span class="text-sm font-semibold text-white">Total</span>
+              <span class="font-mono text-lg font-bold text-emerald">&pound;54.79</span>
+            </div>
+          </div>
+
+          <!-- AI badge -->
+          <div class="absolute -right-3 -top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-violet text-sm font-bold text-white shadow-lg shadow-violet/30" data-reveal="scale-in" data-delay="400" role="img" aria-label="AI-powered">
+            AI
+          </div>
+        </div>
+
+        <!-- Pots side -->
+        <div class="flex flex-col gap-4" id="receipt-pots">
+          <div class="mb-2 text-sm font-medium text-slate-mid" data-reveal data-delay="200">Auto-categorized into pots:</div>
+          {pots.map(pot => (
+            <div class:list={[
+              'pot-badge flex items-center justify-between rounded-xl border p-4 transition-all',
+              pot.color === 'emerald' ? 'border-emerald/20 bg-emerald/5' : pot.color === 'gold' ? 'border-gold/20 bg-gold/5' : pot.color === 'violet' ? 'border-violet/20 bg-violet/5' : 'border-sky/20 bg-sky/5'
+            ]}>
+              <div class="flex items-center gap-3">
+                <div class:list={[
+                  'flex h-10 w-10 items-center justify-center rounded-lg text-lg',
+                  pot.color === 'emerald' ? 'bg-emerald/10' : pot.color === 'gold' ? 'bg-gold/10' : pot.color === 'violet' ? 'bg-violet/10' : 'bg-sky/10'
+                ]} set:html={pot.icon}></div>
+                <div>
+                  <div class="text-sm font-semibold text-white">{pot.name}</div>
+                  <div class="text-xs text-slate-mid" set:html={pot.path}></div>
+                </div>
+              </div>
+              <div class:list={[
+                'font-mono text-sm font-bold',
+                pot.color === 'emerald' ? 'text-emerald' : pot.color === 'gold' ? 'text-gold' : pot.color === 'violet' ? 'text-violet' : 'text-sky'
+              ]}>&pound;{pot.total}</div>
+            </div>
+          ))}
+
+          <!-- Auto-applied labels -->
+          <div class="mt-2 rounded-xl border border-slate-dark/50 bg-deep-navy/50 p-3">
+            <div class="mb-2 text-xs font-medium text-slate-mid">Auto-applied labels:</div>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="rounded-full bg-violet/10 px-2.5 py-0.5 font-mono text-xs text-violet-light">hobby:painting</span>
+              <span class="rounded-full bg-emerald/10 px-2.5 py-0.5 font-mono text-xs text-emerald-light">hobby:running</span>
+              <span class="rounded-full bg-gold/10 px-2.5 py-0.5 font-mono text-xs text-gold-light">vendor:hobby-craft</span>
+            </div>
+          </div>
+
+          <div class="mt-2 text-center">
+            <span class="inline-flex items-center gap-2 rounded-full border border-emerald/20 bg-emerald/5 px-4 py-1.5 text-xs font-medium text-emerald-light">
+              &#x2713; All items categorized &middot; Labels applied &middot; Budget updated
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function initReceiptDemo() {
+    const demo = document.getElementById('receipt-demo')
+    if (!demo) return
+
+    let hasTriggered = false
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !hasTriggered) {
+          hasTriggered = true
+
+          // Phase 1: Show receipt + scan
+          demo.classList.add('active')
+
+          // Phase 2: Categorize items into pots
+          setTimeout(() => {
+            demo.classList.add('categorized')
+          }, 2200)
+        }
+      })
+    }, { threshold: 0.3 })
+
+    observer.observe(demo)
+  }
+
+  // Run on initial load
+  initReceiptDemo()
+  // Re-run on view transitions
+  document.addEventListener('astro:after-swap', initReceiptDemo)
+</script>

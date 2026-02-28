@@ -1,0 +1,205 @@
+---
+/**
+ * 3D rotating coin background — a single large coin rotates slowly
+ * in 3D space behind the hero content. Uses canvas with manual
+ * perspective projection for a clean, subtle effect.
+ */
+---
+
+<canvas
+  id="money-flow-canvas"
+  class="pointer-events-none absolute inset-0 h-full w-full"
+  aria-hidden="true"
+></canvas>
+
+<script>
+  ;(function () {
+    const el = document.getElementById('money-flow-canvas')
+    if (!el || !(el instanceof HTMLCanvasElement)) return
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) return
+
+    const context = el.getContext('2d')
+    if (!context) return
+
+    // Assign to non-nullable consts so closures can reference them safely
+    const canvas: HTMLCanvasElement = el
+    const ctx: CanvasRenderingContext2D = context
+
+    /* ---- Configuration ---- */
+    const ROTATION_SPEED = 0.006 // radians per frame
+    const TILT_X = 0.35 // slight top-down tilt (radians)
+    const COIN_COLOR = '#10b981'
+    const COIN_EDGE_COLOR = '#059669'
+    const COIN_THICKNESS = 0.08 // relative to radius
+    const SYMBOL = '£'
+
+    /* ---- State ---- */
+    let W = 0
+    let H = 0
+    let animId = 0
+    let angleY = 0 // rotation around Y axis
+
+    /* ---- Resize ---- */
+    function resize() {
+      const rect = canvas.parentElement?.getBoundingClientRect()
+      if (!rect) return
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      W = rect.width
+      H = rect.height
+      canvas.width = W * dpr
+      canvas.height = H * dpr
+      canvas.style.width = W + 'px'
+      canvas.style.height = H + 'px'
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    }
+
+    /* ---- 3D helpers ---- */
+    function coinRadius() {
+      return Math.min(W, H) * 0.35
+    }
+
+    function drawCoinEdge(cx: number, cy: number, radius: number, cosY: number, sinY: number) {
+      // Draw the edge (thickness) of the coin as a filled band
+      const thickness = radius * COIN_THICKNESS
+      const edgeWidth = Math.abs(sinY) * thickness
+
+      if (edgeWidth < 0.5) return // too thin to see
+
+      ctx.save()
+      ctx.translate(cx, cy)
+
+      // The edge appears as a rectangle between the two face ellipses
+      const ellipseW = radius * Math.abs(cosY)
+      const steps = 60
+      const cosTilt = Math.cos(TILT_X)
+
+      ctx.beginPath()
+      // Draw top arc of front face
+      for (let i = 0; i <= steps; i++) {
+        const a = (i / steps) * Math.PI * 2
+        const ex = Math.cos(a) * ellipseW
+        const ey = Math.sin(a) * radius
+        // Apply tilt
+        const ty = ey * cosTilt
+        const frontX = ex + (sinY > 0 ? -edgeWidth / 2 : edgeWidth / 2)
+        if (i === 0) ctx.moveTo(frontX, ty)
+        else ctx.lineTo(frontX, ty)
+      }
+      // Draw back arc in reverse
+      for (let i = steps; i >= 0; i--) {
+        const a = (i / steps) * Math.PI * 2
+        const ex = Math.cos(a) * ellipseW
+        const ey = Math.sin(a) * radius
+        const ty = ey * cosTilt
+        const backX = ex + (sinY > 0 ? edgeWidth / 2 : -edgeWidth / 2)
+        ctx.lineTo(backX, ty)
+      }
+      ctx.closePath()
+
+      ctx.fillStyle = COIN_EDGE_COLOR + '30'
+      ctx.fill()
+
+      ctx.restore()
+    }
+
+    function drawCoinFace(cx: number, cy: number, radius: number, cosY: number) {
+      const ellipseW = radius * Math.abs(cosY)
+      const ellipseH = radius
+      const cosTilt = Math.cos(TILT_X)
+
+      ctx.save()
+      ctx.translate(cx, cy)
+
+      // Outer ring with gradient
+      const grad = ctx.createRadialGradient(0, 0, ellipseW * 0.3, 0, 0, Math.max(ellipseW, ellipseH))
+      grad.addColorStop(0, COIN_COLOR + '18')
+      grad.addColorStop(0.7, COIN_COLOR + '10')
+      grad.addColorStop(1, COIN_COLOR + '05')
+
+      ctx.beginPath()
+      ctx.ellipse(0, 0, Math.max(ellipseW, 1), ellipseH * cosTilt, 0, 0, Math.PI * 2)
+      ctx.fillStyle = grad
+      ctx.fill()
+
+      // Rim
+      ctx.beginPath()
+      ctx.ellipse(0, 0, Math.max(ellipseW, 1), ellipseH * cosTilt, 0, 0, Math.PI * 2)
+      ctx.strokeStyle = COIN_COLOR + '35'
+      ctx.lineWidth = 2
+      ctx.stroke()
+
+      // Inner decorative ring
+      const innerScale = 0.75
+      ctx.beginPath()
+      ctx.ellipse(0, 0, Math.max(ellipseW * innerScale, 0.5), ellipseH * innerScale * cosTilt, 0, 0, Math.PI * 2)
+      ctx.strokeStyle = COIN_COLOR + '20'
+      ctx.lineWidth = 1
+      ctx.stroke()
+
+      // Currency symbol — scale horizontally with the face
+      const symbolAlpha = Math.min(Math.abs(cosY) * 1.5, 1)
+      if (symbolAlpha > 0.05) {
+        const fontSize = Math.round(radius * 0.5 * Math.abs(cosY))
+        if (fontSize > 4) {
+          ctx.scale(Math.abs(cosY), cosTilt)
+          ctx.fillStyle = COIN_COLOR + Math.round(symbolAlpha * 0.4 * 255).toString(16).padStart(2, '0')
+          ctx.font = `700 ${Math.round(radius * 0.5)}px "Playfair Display", Georgia, serif`
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'middle'
+          ctx.fillText(SYMBOL, 0, 2)
+        }
+      }
+
+      ctx.restore()
+    }
+
+    /* ---- Animation loop ---- */
+    function frame() {
+      angleY += ROTATION_SPEED
+
+      const cosY = Math.cos(angleY)
+      const sinY = Math.sin(angleY)
+
+      ctx.clearRect(0, 0, W, H)
+
+      const cx = W * 0.75
+      const cy = H * 0.45
+      const radius = coinRadius()
+
+      // Draw edge behind face when visible
+      drawCoinEdge(cx, cy, radius, cosY, sinY)
+
+      // Draw the visible face
+      drawCoinFace(cx, cy, radius, cosY)
+
+      animId = requestAnimationFrame(frame)
+    }
+
+    /* ---- Event listeners ---- */
+    let resizeTimer: ReturnType<typeof setTimeout>
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer)
+      resizeTimer = setTimeout(resize, 100)
+    })
+
+    // Pause when off-screen
+    const heroObserver = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        if (!animId) animId = requestAnimationFrame(frame)
+      } else {
+        if (animId) {
+          cancelAnimationFrame(animId)
+          animId = 0
+        }
+      }
+    }, { threshold: 0 })
+
+    const heroSection = canvas.closest('section')
+    if (heroSection) heroObserver.observe(heroSection)
+
+    resize()
+    animId = requestAnimationFrame(frame)
+  })()
+</script>

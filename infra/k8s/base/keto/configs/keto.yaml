@@ -1,0 +1,12 @@
+version: v25.4.0
+
+serve:
+  read:
+    port: 4466
+  write:
+    port: 4467
+
+dsn: "env://DSN"
+namespaces:
+  - name: in_the_black
+    id: 1

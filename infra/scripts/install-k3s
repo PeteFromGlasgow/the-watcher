@@ -1,0 +1,73 @@
+#!/bin/bash
+set -e
+
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run as root (sudo ./install_k3s_calico.sh)"
+  exit
+fi
+
+REAL_USER=${SUDO_USER:-$USER}
+USER_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+
+echo "--- Starting K3s Installation (No Flannel, No Traefik) ---"
+echo "--- Installing for user: $REAL_USER ---"
+
+# 1. Install K3s
+# --flannel-backend=none: Disable Flannel CNI
+# --disable-network-policy: Disable K3s Network Policy Controller
+# --disable=traefik: Disable Ingress
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server \
+  --flannel-backend=none \
+  --disable-network-policy \
+  --disable=traefik" \
+  sh -
+
+echo "--- K3s installed. Configuring user access... ---"
+
+# 2. Setup Kubeconfig for the non-root user
+mkdir -p "$USER_HOME/.kube"
+cp /etc/rancher/k3s/k3s.yaml "$USER_HOME/.kube/config"
+
+chown "$REAL_USER":"$REAL_USER" "$USER_HOME/.kube/config"
+chmod 600 "$USER_HOME/.kube/config"
+
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
+echo "Waiting for K3s API to be ready..."
+until k3s kubectl get nodes &> /dev/null; do
+    sleep 2
+    echo "Waiting for API..."
+done
+
+echo "--- Installing Calico CNI (via Tigera Operator) ---"
+
+# 3. Install the Tigera Calico Operator
+k3s kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.29.1/manifests/tigera-operator.yaml
+
+echo "--- Configuring Calico Custom Resources ---"
+
+# 4. Download, patch, and apply Calico CustomResource
+# We patch the CIDR to match K3s default (10.42.0.0/16)
+curl -O https://raw.githubusercontent.com/projectcalico/calico/v3.29.1/manifests/custom-resources.yaml
+sed -i 's/192.168.0.0\/16/10.42.0.0\/16/g' custom-resources.yaml
+k3s kubectl create -f custom-resources.yaml
+
+# 5. Install Envoy Gateway
+k3s kubectl apply --server-side -f https://github.com/envoyproxy/gateway/releases/download/v1.6.2/install.yaml
+
+# 6. Wait for Envoy Gateway to be ready
+echo "Waiting for Envoy Gateway to be ready..."
+until k3s kubectl get pods -n envoy-gateway-system &> /dev/null; do
+    sleep 2
+echo "Waiting for Envoy Gateway..."
+done
+echo "Envoy Gateway installed."
+
+# 7. Install Envoy Gateway quickstart
+echo "--- Installing Envoy Gateway quickstart ---"
+k3s kubectl apply -f https://github.com/envoyproxy/gateway/releases/download/v1.6.2/quickstart.yaml
+
+echo "--- Installation Complete! ---"
+echo "You may need to export KUBECONFIG=$HOME/.kube/config to use kubectl"
+echo "1. You can now run 'kubectl get nodes' without sudo."
+echo "2. Check Calico status with: kubectl get pods -n calico-system"

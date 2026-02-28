@@ -1,0 +1,72 @@
+version: v1.3.1
+serve:
+  public:
+    base_url: http://in-the-black.localhost/api/v1/identity
+    cors:
+      enabled: true
+      allowed_origins:
+        - http://in-the-black.localhost
+      allowed_headers:
+        - Authorization
+        - Content-Type
+        - X-CSRF-Token
+      allow_credentials: true
+  admin:
+    base_url: http://kratos:4434/
+cookies:
+  same_site: None
+courier:
+  smtp:
+    connection_uri: smtp://test:test@mailpit:1025
+    from_address: no-reply@example.com
+selfservice:
+  default_browser_return_url: http://in-the-black.localhost/
+  methods:
+    password:
+      enabled: true
+  flows:
+    error:
+      ui_url: http://in-the-black.localhost/error
+    settings:
+      ui_url: http://in-the-black.localhost/settings
+      privileged_session_max_age: 15m
+    recovery:
+      enabled: true
+      ui_url: http://in-the-black.localhost/recovery
+    verification:
+      enabled: true
+      ui_url: http://in-the-black.localhost/verification
+      after:
+        default_browser_return_url: http://in-the-black.localhost/
+    logout:
+      after:
+        default_browser_return_url: http://in-the-black.localhost/login
+    login:
+      ui_url: http://in-the-black.localhost/login
+      lifespan: 12h
+    registration:
+      lifespan: 10m
+      ui_url: http://in-the-black.localhost/registration
+      after:
+        password:
+          hooks:
+            - hook: web_hook
+              config:
+                url: http://api-gateway:3000/api/v1/registration-hook
+                method: POST
+                body: file:///etc/config/kratos/after-registration.jsonnet
+                can_interrupt: false
+                response:
+                  ignore: true
+            - hook: session
+log:
+  level: debug
+  format: text
+secrets:
+  cookie:
+    - PLEASE_CHANGE_ME_I_AM_VERY_INSECURE
+identity:
+  default_schema_id: default
+  schemas:
+    - id: default
+      url: file:///etc/config/kratos/identity.schema.json

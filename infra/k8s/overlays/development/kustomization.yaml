@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Apply the "in-the-black" namespace to all resources
+namespace: in-the-black
+
+# List of resources to include in the deployment
+resources:
+  - ../../base/postgres
+  - ../../base/kratos
+  - ../../base/hydra
+  - ../../base/oathkeeper
+  - ../../base/keto
+  - ../../base/mailpit
+  - ../../base/kratos-admin-ui
+  - ../../base/api-gateway
+  - ../../base/webapp
+  - ../../base/db-migrations
+  - ../../base/api
+  - namespace.yaml # The namespace itself must be created
+  - postgres-secret.yaml
+  - kratos-secret.yaml
+  - hydra-secret.yaml
+  - keto-secret.yaml
+  - gateway.yaml
+
+configMapGenerator:
+  - name: webapp-config
+    behavior: merge
+    envs:
+      - webapp-config.env
+  - name: kratos-config
+    behavior: replace
+    files:
+      - configs/kratos.yaml
+      - configs/identity.schema.json
+      - configs/after-registration.jsonnet
