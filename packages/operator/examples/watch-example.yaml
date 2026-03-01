@@ -1,0 +1,32 @@
+apiVersion: watcher.io/v1alpha1
+kind: Watch
+metadata:
+  name: vw-crafter-gumtree
+  namespace: watcher
+  annotations:
+    # watcher.io/db-id must match the UUID of the corresponding row in the watches table.
+    # Create the DB row first, then set this annotation.
+    watcher.io/db-id: "00000000-0000-0000-0000-000000000000"
+spec:
+  url: https://www.gumtree.com/search?q=volkswagen+crafter&category=cars
+  adapter: gumtree
+  transport:
+    chain:
+      - name: http
+      - name: flaresolverr
+  schedule: "*/30 * * * *"
+  notifiers:
+    - type: telegram
+      secretRef: telegram-vw-alerts
+  filters:
+    priceMin: 5000
+    priceMax: 15000
+    keywords:
+      include:
+        - H3
+        - "high roof"
+      exclude:
+        - spares
+        - repair
+  similarityThreshold: 0.85
+  enabled: true

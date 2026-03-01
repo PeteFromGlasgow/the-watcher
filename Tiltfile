@@ -74,6 +74,20 @@ docker_build(
     dockerfile='./packages/clip-service/Dockerfile'
 )
 
+# Operator: rebuild on any Go source change, live-reload inside the pod
+docker_build(
+    'ghcr.io/petefromglasgow/the-watcher/operator',
+    context='./packages/operator',
+    dockerfile='./packages/operator/Dockerfile',
+    live_update=[
+        sync('./packages/operator', '/app'),
+        run(
+            'cd /app && CGO_ENABLED=0 go build -o /manager ./cmd/main.go',
+            trigger=['./packages/operator/**/*.go']
+        )
+    ]
+)
+
 # --- Default Registry ---
 # Use the value of the TILT_DEFAULT_REGISTRY environment variable, if it's set.
 # Otherwise, use the default value.
@@ -96,6 +110,8 @@ k8s_resource('mailpit', labels="tooling")
 k8s_resource('kratos-admin-ui', labels="tooling")
 k8s_resource('flaresolverr', labels="tooling")
 k8s_resource('clip-service', labels="tooling")
+
+k8s_resource('watcher-operator', port_forwards='8081:8081', labels="operator")
 
 # --- Local Resources ---
 local_resource(

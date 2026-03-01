@@ -18,6 +18,7 @@ resources:
   - ../../base/api
   - ../../base/flaresolverr
   - ../../base/clip-service
+  - ../../base/operator
   - namespace.yaml # The namespace itself must be created
   - postgres-secret.yaml
   - kratos-secret.yaml
