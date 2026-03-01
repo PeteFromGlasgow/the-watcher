@@ -1,8 +1,8 @@
 {
-  "name": "@watcher/pipeline",
+  "name": "@watcher/notifiers",
   "version": "0.0.1",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
     "build": "tsc -p .",
@@ -13,20 +13,13 @@
   "author": "Peter Kinnaird <peter@kinnaird.scot>",
   "repository": "https://github.com/PeteFromGlasgow/the-watcher.git",
   "license": "ISC",
-  "description": "Processing pipeline for The Watcher",
+  "description": "Notification channels for The Watcher",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
-    "@watcher/db": "workspace:*",
-    "@watcher/notifiers": "workspace:*",
-    "@watcher/embedding-client": "workspace:*",
     "@watcher/shared-logic": "workspace:*",
-    "@watcher/adapters": "workspace:*",
-    "@watcher/transports": "workspace:*",
-    "knex": "^3.1.0",
-    "openai": "^4.78.1"
+    "knex": "^3.1.0"
   },
   "devDependencies": {
     "@types/node": "^25.0.9",

@@ -211,6 +211,28 @@ importers:
         specifier: ^4.0.17
         version: 4.0.17(@types/node@25.0.9)(@vitest/browser-playwright@4.0.17)(jiti@2.6.1)(lightningcss@1.30.2)(stylus@0.57.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
 
+  packages/notifiers:
+    dependencies:
+      '@watcher/shared-logic':
+        specifier: workspace:*
+        version: link:../core
+      knex:
+        specifier: ^3.1.0
+        version: 3.1.0(pg@8.17.1)
+    devDependencies:
+      '@types/node':
+        specifier: ^25.0.9
+        version: 25.0.9
+      '@vitest/coverage-v8':
+        specifier: 4.0.17
+        version: 4.0.17(@vitest/browser@4.0.17(vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(lightningcss@1.30.2)(stylus@0.57.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(vitest@4.0.17))(vitest@4.0.17)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.17
+        version: 4.0.17(@types/node@25.0.9)(@vitest/browser-playwright@4.0.17)(jiti@2.6.1)(lightningcss@1.30.2)(stylus@0.57.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
+
   packages/pipeline:
     dependencies:
       '@google/generative-ai':
@@ -225,6 +247,9 @@ importers:
       '@watcher/embedding-client':
         specifier: workspace:*
         version: link:../embedding-client
+      '@watcher/notifiers':
+        specifier: workspace:*
+        version: file:packages/notifiers(pg@8.17.1)
       '@watcher/shared-logic':
         specifier: workspace:*
         version: link:../core
@@ -993,6 +1018,9 @@ packages:
 
   '@watcher/embedding-client@file:packages/embedding-client':
     resolution: {directory: packages/embedding-client, type: directory}
+
+  '@watcher/notifiers@file:packages/notifiers':
+    resolution: {directory: packages/notifiers, type: directory}
 
   '@watcher/pipeline@file:packages/pipeline':
     resolution: {directory: packages/pipeline, type: directory}
@@ -3481,12 +3509,27 @@ snapshots:
 
   '@watcher/embedding-client@file:packages/embedding-client': {}
 
+  '@watcher/notifiers@file:packages/notifiers(pg@8.17.1)':
+    dependencies:
+      '@watcher/shared-logic': file:packages/core
+      knex: 3.1.0(pg@8.17.1)
+    transitivePeerDependencies:
+      - better-sqlite3
+      - mysql
+      - mysql2
+      - pg
+      - pg-native
+      - sqlite3
+      - supports-color
+      - tedious
+
   '@watcher/pipeline@file:packages/pipeline(ws@8.19.0)':
     dependencies:
       '@google/generative-ai': 0.24.1
       '@watcher/adapters': file:packages/adapters
       '@watcher/db': file:packages/db
       '@watcher/embedding-client': file:packages/embedding-client
+      '@watcher/notifiers': file:packages/notifiers(pg@8.17.1)
       '@watcher/shared-logic': file:packages/core
       '@watcher/transports': file:packages/transports
       knex: 3.1.0(pg@8.17.1)

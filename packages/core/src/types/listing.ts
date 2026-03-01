@@ -30,7 +30,7 @@ export interface ScrapedListing {
   metadata: Record<string, unknown>
   scrapedAt: Date
   duplicateOf: string | null
-  llmAnalysis: string | null
+  llmAnalysis: Record<string, unknown> | null
 }
 
 // Options for the generic-html adapter, specified in Watch.adapterOptions

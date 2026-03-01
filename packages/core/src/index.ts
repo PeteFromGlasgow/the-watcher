@@ -21,8 +21,8 @@ export type {
   PageTransportResult,
   Adapter,
   AdapterResult,
-  Notifier,
-  NotificationPayload,
+  NotifierConfig,
+  NotifierType,
   PipelineResult,
   PipelineStatus
 } from './types/index.js'
