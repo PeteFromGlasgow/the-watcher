@@ -20,6 +20,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@watcher/db": "workspace:*",
+    "pino": "^10.0.0",
     "@watcher/notifiers": "workspace:*",
     "@watcher/embedding-client": "workspace:*",
     "@watcher/shared-logic": "workspace:*",

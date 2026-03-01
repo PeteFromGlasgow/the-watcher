@@ -2,6 +2,7 @@ import { TransportResolver, HttpTransport, PlaywrightTransport, FlareSolverrTran
 import type { Transport } from '@watcher/transports'
 import { adapterRegistry } from '@watcher/adapters'
 import type { Watch, ScrapedListing } from '@watcher/shared-logic'
+import { createScrapeLogger } from './logger.js'
 
 const defaultTransportMap = new Map<string, Transport>([
   ['http', new HttpTransport()],
@@ -18,6 +19,7 @@ export interface ScrapeResult {
 
 export async function runScrape(watch: Watch): Promise<ScrapeResult> {
   const startedAt = Date.now()
+  const log = createScrapeLogger(watch.id, watch.adapter)
   const resolver = new TransportResolver(defaultTransportMap)
 
   if (!watch.transport) {
@@ -31,6 +33,8 @@ export async function runScrape(watch: Watch): Promise<ScrapeResult> {
   // In K8s, secrets are mounted as env vars by the operator (WCH-36)
   // e.g. WATCHER_SECRET_FACEBOOK_SESSION for secretRef: facebook-session
   const cookieHeader = resolveCookieHeader(watch)
+
+  log.info({ stage: 'scrape', transport_chain: watch.transport.chain }, 'Starting scrape')
 
   const transportResult = await resolver.resolve(watch.transport, {
     url: watch.url,
@@ -53,10 +57,18 @@ export async function runScrape(watch: Watch): Promise<ScrapeResult> {
     }
   }
 
+  const durationMs = Date.now() - startedAt
+  log.info({
+    stage: 'scrape',
+    transport_used: transportResult.transportUsed,
+    listings_found: listings.length,
+    duration_ms: durationMs
+  }, 'Scrape complete')
+
   return {
     listings,
     transportUsed: transportResult.transportUsed,
-    durationMs: Date.now() - startedAt
+    durationMs
   }
 }
 
