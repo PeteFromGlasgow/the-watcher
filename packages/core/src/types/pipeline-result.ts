@@ -1,11 +1,14 @@
-import type { Listing } from './listing.js'
-
 export type PipelineStatus = 'ok' | 'error' | 'no_change'
 
 export interface PipelineResult {
   watchId: string
-  status: PipelineStatus
-  newListings: Listing[]
-  error?: string
-  durationMs: number
+  runId: string
+  startedAt: Date
+  completedAt: Date
+  transportUsed: string | null
+  listingsFound: number
+  newListings: number
+  duplicatesSkipped: number
+  notificationsSent: number
+  errors: string[]
 }
