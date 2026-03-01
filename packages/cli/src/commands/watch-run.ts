@@ -1,11 +1,13 @@
 import { Command } from 'commander'
+import { runWatch } from '@watcher/pipeline'
 
-// TODO: WCH-6 — Implement watch-run command to trigger a run for a watch
 export function registerWatchRun(program: Command) {
   program
     .command('watch-run <watchId>')
     .description('Trigger a run for the given watch')
-    .action((_watchId) => {
-      // placeholder
+    .action(async (watchId: string) => {
+      const result = await runWatch(watchId)
+      console.log(JSON.stringify(result, null, 2))
+      process.exit(result.errors.length > 0 ? 1 : 0)
     })
 }
