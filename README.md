@@ -1,144 +1,122 @@
-# In The Black
+# The Watcher
 
-This is a monorepo for all of the services and tools that make up In The Black. A budgeting application that makes use of OpenBanking APIs to provide a clear, automated view of your finances.
+A sophisticated property listing monitor that automates the process of watching, filtering, and analyzing property listings across various platforms.
 
-It is an API first framework and this monorepo contains an API Gateway, backend services, and a web application. The infrastructure is designed to run natively on Kubernetes.
- 
+## Overview
 
- ## Features
- 
- *   🏦 **Accounts API:** Service for managing bank accounts and transactions, integrating with OpenBanking APIs.
- *   💱 **Currencies API:** Microservice handling currency conversion and exchange rates.
- *   🔍 **Query Language:** Custom, type-safe query language (`packages/query-language`) for filtering financial data, powered by grammar-based parsing.
- *   🖥️ **Web Dashboard:** Full stack Nuxt 3 application (`packages/webapp`) for visualizing your financial health.
- *   💻 **CLI Tool:** Powerful command-line interface (`packages/cli`) for interacting with the system directly from your terminal.
- *   🚪 **API Gateway:** Centralized entry point (`packages/api-gateway`) handling authentication and routing requests to appropriate services.
- *   🐳 **Kubernetes Ready:** Fully containerized microservices with Helm/manifest configurations in `infra/k8s`.
- *   🧪 **Comprehensive Testing:** Integrated unit testing with Vitest across all packages.
- *   🛡️ **Security:** Dedicated security policy and vulnerability scanning with Trivy.
- *   📖 **Documentation:** Built with VitePress for clear, accessible project docs.
- 
- ## Architecture
- 
- The system follows a microservices architecture, orchestrated via Kubernetes. Clients (Web and CLI) interact with the backend services through a centralized API Gateway.
- 
- ```mermaid
- graph TD
-     Client[Clients]
-     WebApp[Web Application]
-     CLI[Command Line Interface]
- 
-     subgraph Kubernetes Cluster
-         Gateway[API Gateway]
-         
-         subgraph Services
-             Accounts[Accounts API]
-             Currencies[Currencies API]
-         end
-         
-         DB[(Database)]
-     end
-     Client --> WebApp
-     Client --> CLI
-     WebApp --> Gateway
-     CLI --> Gateway
-     Gateway --> Accounts
-     Gateway --> Currencies
-     Accounts --> DB
-     Currencies --> DB
- ```
+The Watcher is a monorepo containing services and tools designed to track property listings (e.g., from Gumtree, Facebook Marketplace) and provide intelligent insights. It uses LLMs for content analysis and CLIP embeddings for visual deduplication to ensure you only see unique, relevant listings.
+
+## Key Features
+
+*   🔍 **Automated Scraping:** Site-specific adapters for platforms like Gumtree and Facebook Marketplace, using Playwright and Cheerio.
+*   🧠 **LLM-Powered Analysis:** Automatically analyzes listing descriptions and images using OpenAI or Google Gemini.
+*   🖼️ **Visual Deduplication:** Uses CLIP (Contrastive Language-Image Pre-training) embeddings to identify and skip duplicate listings based on images.
+*   🛡️ **Multi-Transport Support:** Flexible transport layer (Http, Playwright, BrightData, FlareSolverr) to avoid anti-bot measures.
+*   💻 **CLI Tool:** Powerful command-line interface (`@watcher/cli`) to trigger runs and manage watches.
+*   🚪 **API Gateway:** Centralized entry point (`@watcher/api-gateway`) for external requests with rate limiting and Swagger documentation.
+*   🏗️ **Kubernetes Native:** Designed to run on K8s with a robust auth stack (Ory Kratos, Hydra, Keto, Oathkeeper) and infrastructure management using Kustomize.
+
+## Architecture
+
+The system follows a microservices architecture coordinated via a centralized API and a processing pipeline.
+
+```mermaid
+graph TD
+    CLI[Watcher CLI]
+    Gateway[API Gateway]
+    API[Watcher API]
+    Pipeline[Processing Pipeline]
+    Scraper[Scraper/Adapters]
+    CLIP[CLIP Embedding Service]
+    DB[(PostgreSQL)]
+    LLM[LLMs (OpenAI/Gemini)]
+    Sources[Property Sites]
+
+    CLI --> API
+    CLI --> Pipeline
+    Gateway --> API
+    Pipeline --> API
+    Pipeline --> Scraper
+    Pipeline --> CLIP
+    Pipeline --> LLM
+    Scraper --> Sources
+    API --> DB
+    Pipeline --> DB
+```
+
+## Packages
+
+| Package | Description |
+| :--- | :--- |
+| [`@watcher/api`](./packages/api) | Backend API service for managing watches and listings. |
+| [`@watcher/api-gateway`](./packages/api-gateway) | Fastify-based gateway for routing and security. |
+| [`@watcher/cli`](./packages/cli) | CLI tool to interact with the system. |
+| [`@watcher/pipeline`](./packages/pipeline) | Core logic for scraping, filtering, and analysis. |
+| [`@watcher/scraper`](./packages/scraper) | Orchestration for site-specific scraping. |
+| [`@watcher/adapters`](./packages/adapters) | Site-specific scrapers (Gumtree, Facebook, etc.). |
+| [`@watcher/transports`](./packages/transports) | Network transport layer (HTTP, Playwright, FlareSolverr). |
+| [`@watcher/shared-logic`](./packages/core) | Shared logic and data models. |
+| [`@watcher/db`](./packages/db) | Database migrations and seeds. |
+| [`@watcher/embedding-client`](./packages/embedding-client) | Client for the CLIP embedding service. |
+| `clip-service` | Python FastAPI service for CLIP embeddings. |
 
 ## Usage
 
-This project uses `pnpm` to support multiple packages in the same repository.
+This project uses `pnpm` for monorepo management.
 
 ### Setup
 
 ```bash
-# Enable Corepack
-corepack enable
+# Install dependencies
+pnpm install
 
-# Install all packages recursively
-pnpm install -r
-```
-
-### Building
-
-To build all packages (`core`, `cli`, `browser`):
-
-```bash
+# Build all packages
 pnpm build
 ```
 
-This command runs the `build` script defined in the `package.json` of each individual package.
+### Development
+
+To run a specific service in development mode:
+
+```bash
+pnpm --filter @watcher/api-gateway dev
+pnpm --filter @watcher/api start:dev
+```
 
 ### Testing
 
-There are separate commands for running tests:
-
-*   **Run tests for `core` and `cli` packages:**
-
-    ```bash
-    pnpm test
-    ```
-
-*   **Run tests specifically for the `browser` package:**
-
-    ```bash
-pnpm test:browser
-    ```
-
-### Running Applications
-
-**Web Application**
+Run tests across all packages:
 
 ```bash
-pnpm --filter nuxt-app dev
+pnpm test
 ```
 
-**API Gateway**
+### CLI Tool
+
+The `@watcher/cli` provides the `watcher` command. You can use it to trigger a watch run:
 
 ```bash
-pnpm --filter @in-the-black/api-gateway dev
+# Run a specific watch by ID
+pnpm --filter @watcher/cli watch-run <watch-id>
 ```
 
-**Database Migrations**
+## Infrastructure
 
-```bash
-pnpm --filter @in-the-black/db db:migrate
-```
+The infrastructure is managed using Kustomize and can be found in `infra/k8s`. It includes:
+- **PostgreSQL**: Primary data store.
+- **Ory Stack**: Kratos, Hydra, Keto, Oathkeeper for identity and access management.
+- **FlareSolverr**: Proxy service to bypass anti-bot protections.
+- **Mailpit**: SMTP server for testing email notifications.
 
-### Linting
+## Release Process
 
-To check the code style across all packages:
+This project uses [Changesets](https://github.com/changesets/changesets) for versioning and changelogs.
 
-```bash
-pnpm lint
-```
+1.  Add a changeset: `pnpm changeset`
+2.  Follow the prompts to specify package changes.
+3.  Commit the generated changeset file.
+4.  Releases are handled automatically via CI.
 
-To automatically fix linting issues:
+## License
 
-```bash
-pnpm lint:fix
-```
-
-### Versioning & Releasing (using Changesets)
-
-This project uses [Changesets](https://github.com/changesets/changesets) to manage versioning and generate changelogs.
-
-1.  **Add a changeset:** When you make a change that should trigger a package release, run:
-
-    ```bash
-    pnpm changeset
-    ```
-    Follow the prompts to specify which packages are affected and the type of change (patch, minor, major).
-
-2.  **Create a release pull request:** The `changeset-bot` (if configured in CI) or a manual run of `pnpm changeset version` will consume the changeset files and update package versions and changelogs.
-
-3.  **Publish packages:** After merging the release PR, you can publish the updated packages:
-
-    ```bash
-    pnpm release
-    ```
-    This script typically runs `pnpm build` first, then publishes the packages using `pnpm publish -r`. *Note: The `--no-git-checks` flag is used here, be mindful of your release workflow.*
-
+ISC
