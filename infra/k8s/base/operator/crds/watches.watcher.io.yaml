@@ -1,0 +1,212 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: watches.watcher.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.15.0
+spec:
+  group: watcher.io
+  names:
+    kind: Watch
+    listKind: WatchList
+    plural: watches
+    singular: watch
+    shortNames:
+      - w
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Adapter
+          type: string
+          jsonPath: .spec.adapter
+        - name: Schedule
+          type: string
+          jsonPath: .spec.schedule
+        - name: Last Status
+          type: string
+          jsonPath: .status.lastRunStatus
+        - name: New Listings
+          type: integer
+          jsonPath: .status.newListings
+        - name: Last Run
+          type: date
+          jsonPath: .status.lastRunTime
+      schema:
+        openAPIV3Schema:
+          type: object
+          description: Watch is the Schema for the watches API.
+          properties:
+            apiVersion:
+              type: string
+            kind:
+              type: string
+            metadata:
+              type: object
+            spec:
+              type: object
+              description: WatchSpec defines the desired state of Watch.
+              required:
+                - url
+                - adapter
+                - transport
+                - schedule
+                - notifiers
+              properties:
+                url:
+                  type: string
+                  description: URL to scrape.
+                adapter:
+                  type: string
+                  description: Adapter name to use for parsing listings.
+                  enum:
+                    - facebook
+                    - gumtree
+                    - generic-html
+                transport:
+                  type: object
+                  description: Ordered list of transports to try.
+                  required:
+                    - chain
+                  properties:
+                    chain:
+                      type: array
+                      description: Ordered list of transport entries.
+                      minItems: 1
+                      items:
+                        type: object
+                        required:
+                          - name
+                        properties:
+                          name:
+                            type: string
+                            description: Transport implementation name.
+                            enum:
+                              - http
+                              - playwright
+                              - flaresolverr
+                              - brightdata
+                          secretRef:
+                            type: string
+                            description: Optional Kubernetes Secret name containing transport credentials.
+                schedule:
+                  type: string
+                  description: Cron expression for scrape frequency e.g. "*/30 * * * *".
+                notifiers:
+                  type: array
+                  description: Notification channels.
+                  minItems: 1
+                  items:
+                    type: object
+                    required:
+                      - type
+                      - secretRef
+                    properties:
+                      type:
+                        type: string
+                        description: Notification provider.
+                        enum:
+                          - ntfy
+                          - telegram
+                          - slack
+                      secretRef:
+                        type: string
+                        description: Kubernetes Secret containing provider credentials.
+                filters:
+                  type: object
+                  description: Restricts which scraped listings are stored.
+                  properties:
+                    priceMin:
+                      type: number
+                      description: Minimum listing price to include.
+                    priceMax:
+                      type: number
+                      description: Maximum listing price to include.
+                    keywords:
+                      type: object
+                      description: Keyword matching on listing text.
+                      properties:
+                        include:
+                          type: array
+                          items:
+                            type: string
+                          description: Require at least one keyword to be present.
+                        exclude:
+                          type: array
+                          items:
+                            type: string
+                          description: Reject listings containing any of these keywords.
+                llmQuestions:
+                  type: array
+                  description: Optional prompts for visual analysis of listing images.
+                  items:
+                    type: string
+                similarityThreshold:
+                  type: number
+                  description: Cosine similarity threshold for image dedup (0-1).
+                  minimum: 0
+                  maximum: 1
+                  default: 0.85
+                enabled:
+                  type: boolean
+                  description: Controls whether this watch is active.
+                  default: true
+            status:
+              type: object
+              description: WatchStatus defines the observed state of Watch.
+              properties:
+                lastRunTime:
+                  type: string
+                  format: date-time
+                  description: Timestamp of the most recently completed pipeline run.
+                lastRunStatus:
+                  type: string
+                  description: Outcome of the most recent run.
+                  enum:
+                    - Success
+                    - Failed
+                    - Running
+                    - Unknown
+                listingsFound:
+                  type: integer
+                  description: Total listings scraped in the last run.
+                newListings:
+                  type: integer
+                  description: Previously-unseen listings in the last run.
+                transportUsed:
+                  type: string
+                  description: Transport that successfully returned content in the last run.
+                conditions:
+                  type: array
+                  description: Latest available observations of the Watch's state.
+                  x-kubernetes-list-map-keys:
+                    - type
+                  x-kubernetes-list-type: map
+                  items:
+                    type: object
+                    required:
+                      - lastTransitionTime
+                      - message
+                      - reason
+                      - status
+                      - type
+                    properties:
+                      lastTransitionTime:
+                        type: string
+                        format: date-time
+                      message:
+                        type: string
+                      observedGeneration:
+                        type: integer
+                        format: int64
+                      reason:
+                        type: string
+                      status:
+                        type: string
+                      type:
+                        type: string
