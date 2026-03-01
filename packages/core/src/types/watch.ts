@@ -1,3 +1,5 @@
+import type { TransportChainConfig } from './transport-chain.js'
+
 export type WatchStatus = 'active' | 'paused' | 'archived'
 
 export interface Watch {
@@ -10,4 +12,8 @@ export interface Watch {
   status: WatchStatus
   created_at: string
   updated_at: string
+  // Scraper fields — populated by the operator (WCH-36) at run time
+  url?: string
+  adapterOptions?: Record<string, unknown>
+  transport?: TransportChainConfig
 }

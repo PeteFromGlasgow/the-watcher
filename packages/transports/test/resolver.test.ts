@@ -8,7 +8,7 @@ const context: TransportContext = { url: 'https://example.com' }
 function makeTransport(name: string, html: string): Transport {
   return {
     name,
-    execute: vi.fn().mockResolvedValue({ html, transportUsed: name })
+    execute: vi.fn().mockResolvedValue({ type: 'html', html, transportUsed: name })
   }
 }
 

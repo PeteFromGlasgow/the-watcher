@@ -1,4 +1,4 @@
-export type { Listing, ListingImage } from './listing.js'
+export type { Listing, ListingImage, ScrapedListing, GenericHtmlOptions } from './listing.js'
 export type { Watch, WatchStatus } from './watch.js'
 export type { TransportType, TransportConfig } from './transport.js'
 export type { TransportEntry, TransportChainConfig, TransportResult, HtmlTransportResult, PageTransportResult } from './transport-chain.js'

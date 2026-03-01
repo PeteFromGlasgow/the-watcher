@@ -1,0 +1,31 @@
+{
+  "name": "@watcher/adapters",
+  "version": "0.0.1",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p .",
+    "lint": "eslint",
+    "test": "vitest --run",
+    "coverage": "vitest --run --coverage"
+  },
+  "author": "Peter Kinnaird <peter@kinnaird.scot>",
+  "repository": "https://github.com/PeteFromGlasgow/the-watcher.git",
+  "license": "ISC",
+  "description": "Site-specific scraper adapters for The Watcher",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "dependencies": {
+    "@watcher/shared-logic": "workspace:*",
+    "cheerio": "^1.0.0",
+    "playwright": "^1.52.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.9",
+    "@vitest/coverage-v8": "4.0.17",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.17"
+  }
+}

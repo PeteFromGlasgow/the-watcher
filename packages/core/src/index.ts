@@ -7,6 +7,8 @@ export function getHelloWorld(output: (message: string) => void) {
 export type {
   Listing,
   ListingImage,
+  ScrapedListing,
+  GenericHtmlOptions,
   Watch,
   WatchStatus,
   TransportType,
