@@ -4,6 +4,25 @@ import type { Watch } from '@watcher/shared-logic'
 
 const adapter = new FacebookAdapter()
 
+function makeMockPage(cards: object[]) {
+  return {
+    evaluate: vi.fn().mockResolvedValue(undefined), // scroll calls
+    waitForTimeout: vi.fn().mockResolvedValue(undefined),
+    $$: vi.fn().mockResolvedValue(cards)
+  }
+}
+
+function makeCard(data: { imgAlt: string, imgSrc?: string | null, href?: string | null, leafTexts?: string[] }) {
+  return {
+    evaluate: vi.fn().mockResolvedValue({
+      imgAlt: data.imgAlt,
+      imgSrc: data.imgSrc ?? null,
+      href: data.href ?? null,
+      leafTexts: data.leafTexts ?? []
+    })
+  }
+}
+
 describe('FacebookAdapter', () => {
   it('has name "facebook"', () => {
     expect(adapter.name).toBe('facebook')
@@ -16,52 +35,64 @@ describe('FacebookAdapter', () => {
   })
 
   it('extracts listings from a mocked Playwright page', async () => {
-    const mockCard = {
-      $eval: vi.fn().mockImplementation((selector: string) => {
-        if (selector === '[data-testid="marketplace-pdp-title"]') return Promise.resolve('Test Bike')
-        if (selector === '[data-testid="marketplace-pdp-price"]') return Promise.resolve('£200')
-        if (selector === 'a') return Promise.resolve('/marketplace/item/123')
-        if (selector === 'img') return Promise.resolve('https://example.com/bike.jpg')
-        return Promise.resolve(null)
-      })
-    }
-
-    const mockPage = {
-      evaluate: vi.fn().mockResolvedValue(undefined),
-      waitForTimeout: vi.fn().mockResolvedValue(undefined),
-      $$: vi.fn().mockResolvedValue([mockCard])
-    }
+    const card = makeCard({
+      imgAlt: 'Test Bike in Glasgow, United Kingdom',
+      imgSrc: 'https://example.com/bike.jpg',
+      href: '/marketplace/item/123/',
+      leafTexts: ['£200', 'Test Bike', 'Glasgow, United Kingdom']
+    })
 
     const result = await adapter.extract(
-      { type: 'page', page: mockPage, transportUsed: 'playwright' },
+      { type: 'page', page: makeMockPage([card]), transportUsed: 'playwright' },
       {} as unknown as Watch
     )
 
     expect(result.length).toBe(1)
     expect(result[0].title).toBe('Test Bike')
     expect(result[0].rawPrice).toBe('£200')
-    expect(result[0].sourceUrl).toBe('https://www.facebook.com/marketplace/item/123')
+    expect(result[0].sourceUrl).toBe('https://www.facebook.com/marketplace/item/123/')
     expect(result[0].images).toContain('https://example.com/bike.jpg')
     expect(result[0].adapterName).toBe('facebook')
     expect(result[0].scrapedAt).toBeInstanceOf(Date)
+    expect(result[0].metadata).toEqual({ location: 'Glasgow, United Kingdom' })
   })
 
-  it('skips cards with no title', async () => {
-    const mockCard = {
-      $eval: vi.fn().mockImplementation((selector: string) => {
-        if (selector === '[data-testid="marketplace-pdp-title"]') return Promise.resolve('')
-        return Promise.resolve(null)
-      })
-    }
-
-    const mockPage = {
-      evaluate: vi.fn().mockResolvedValue(undefined),
-      waitForTimeout: vi.fn().mockResolvedValue(undefined),
-      $$: vi.fn().mockResolvedValue([mockCard])
-    }
+  it('extracts price correctly when a badge precedes it', async () => {
+    const card = makeCard({
+      imgAlt: 'Nintendo Switch in Cowdenbeath, Fife',
+      href: '/marketplace/item/456/',
+      leafTexts: ['Just listed', '£60', 'Nintendo Switch', 'Cowdenbeath, Fife']
+    })
 
     const result = await adapter.extract(
-      { type: 'page', page: mockPage, transportUsed: 'playwright' },
+      { type: 'page', page: makeMockPage([card]), transportUsed: 'playwright' },
+      {} as unknown as Watch
+    )
+
+    expect(result[0].title).toBe('Nintendo Switch')
+    expect(result[0].rawPrice).toBe('£60')
+  })
+
+  it('extracts FREE listings correctly', async () => {
+    const card = makeCard({
+      imgAlt: 'Free Table Tennis Table in Giffnock',
+      href: '/marketplace/item/789/',
+      leafTexts: ['FREE', 'Free Table Tennis Table', 'Giffnock']
+    })
+
+    const result = await adapter.extract(
+      { type: 'page', page: makeMockPage([card]), transportUsed: 'playwright' },
+      {} as unknown as Watch
+    )
+
+    expect(result[0].rawPrice).toBe('FREE')
+  })
+
+  it('skips cards with no title (empty img alt)', async () => {
+    const card = makeCard({ imgAlt: '', href: '/marketplace/item/999/' })
+
+    const result = await adapter.extract(
+      { type: 'page', page: makeMockPage([card]), transportUsed: 'playwright' },
       {} as unknown as Watch
     )
 
@@ -69,11 +100,7 @@ describe('FacebookAdapter', () => {
   })
 
   it('scrolls the page 5 times before extracting', async () => {
-    const mockPage = {
-      evaluate: vi.fn().mockResolvedValue(undefined),
-      waitForTimeout: vi.fn().mockResolvedValue(undefined),
-      $$: vi.fn().mockResolvedValue([])
-    }
+    const mockPage = makeMockPage([])
 
     await adapter.extract(
       { type: 'page', page: mockPage, transportUsed: 'playwright' },
@@ -82,5 +109,20 @@ describe('FacebookAdapter', () => {
 
     expect(mockPage.evaluate).toHaveBeenCalledTimes(5)
     expect(mockPage.waitForTimeout).toHaveBeenCalledTimes(5)
+  })
+
+  it('uses absolute href as-is when card links to external URL', async () => {
+    const card = makeCard({
+      imgAlt: 'Some Item in Somewhere',
+      href: 'https://www.facebook.com/marketplace/item/111/',
+      leafTexts: ['£50', 'Some Item', 'Somewhere']
+    })
+
+    const result = await adapter.extract(
+      { type: 'page', page: makeMockPage([card]), transportUsed: 'playwright' },
+      {} as unknown as Watch
+    )
+
+    expect(result[0].sourceUrl).toBe('https://www.facebook.com/marketplace/item/111/')
   })
 })

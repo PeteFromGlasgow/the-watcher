@@ -69,6 +69,8 @@ async function storeImageS3(filename: string, buffer: Buffer): Promise<string> {
   }
 
   // Dynamic import to keep @aws-sdk/client-s3 an optional dependency
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore: optional runtime dependency, not declared in devDependencies
   const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3')
   const client = new S3Client({
     endpoint,
