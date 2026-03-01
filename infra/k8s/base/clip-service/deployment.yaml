@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clip-service
+  labels:
+    app: clip-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: clip-service
+  template:
+    metadata:
+      labels:
+        app: clip-service
+    spec:
+      containers:
+        - name: clip-service
+          # TODO: Replace with actual CLIP service image
+          image: ghcr.io/petefromglasgow/the-watcher/clip-service:latest
+          ports:
+            - containerPort: 8000

@@ -1,7 +1,7 @@
 {
-  "name": "@in-the-black/api-gateway",
+  "name": "@watcher/api-gateway",
   "version": "1.0.0",
-  "description": "API Gateway for the in-the-black project",
+  "description": "API Gateway for The Watcher",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
@@ -16,12 +16,9 @@
   "license": "ISC",
   "packageManager": "pnpm@10.15.1",
   "dependencies": {
-    "@fastify/caching": "^9.0.3",
     "@fastify/cors": "^11.2.0",
     "@fastify/http-proxy": "^11.4.1",
     "@fastify/rate-limit": "^10.3.0",
-    "knex": "^3.1.0",
-    "pg": "^8.16.3",
     "@fastify/reply-from": "^12.5.0",
     "@fastify/swagger": "^9.6.1",
     "@fastify/swagger-ui": "^5.2.4",

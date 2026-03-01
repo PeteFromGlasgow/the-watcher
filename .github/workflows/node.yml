@@ -10,11 +10,11 @@ jobs:
         node-version: [22.x, 23.x]
     services:
       postgres:
-        image: postgres:16
+        image: pgvector/pgvector:pg17
         env:
-          POSTGRES_USER: intheblack
+          POSTGRES_USER: watcher
           POSTGRES_PASSWORD: testpassword
-          POSTGRES_DB: intheblack_test
+          POSTGRES_DB: watcher_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -23,7 +23,7 @@ jobs:
         ports:
           - 5432:5432
     env:
-      DATABASE_URL: postgresql://intheblack:testpassword@localhost:5432/intheblack_test
+      DATABASE_URL: postgresql://watcher:testpassword@localhost:5432/watcher_test
     steps:
     - uses: actions/checkout@v4
     - uses: pnpm/action-setup@v4
@@ -35,30 +35,9 @@ jobs:
     - run: pnpm install
     - run: pnpm build
     - name: Run database migrations
-      run: pnpm --filter @in-the-black/db db:migrate
-    - name: Run database seeds
-      run: pnpm --filter @in-the-black/db db:seed
-    - run: cd packages/browser && pnpm exec playwright install
+      run: pnpm --filter @watcher/db db:migrate
     - run: pnpm lint
-    - run: pnpm test:all
-
-  test-browser:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        browser: [chromium, firefox, webkit]
-    steps:
-    - uses: actions/checkout@v4
-    - uses: pnpm/action-setup@v4
-    - name: Use Node.js 22
-      uses: actions/setup-node@v4
-      with:
-        node-version: "22"
-        cache: 'pnpm'
-    - run: pnpm install
-    - run: pnpm build
-    - run: cd packages/browser && pnpm exec playwright install ${{ matrix.browser }} && pnpm exec playwright install-deps ${{ matrix.browser }}
-    - run: cd packages/browser && pnpm exec vitest --run --browser=${{ matrix.browser }}
+    - run: pnpm test
 
   trivy-scan:
     runs-on: ubuntu-latest

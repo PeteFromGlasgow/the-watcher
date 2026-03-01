@@ -1,5 +1,5 @@
 {
-  "name": "@in-the-black/shared-logic",
+  "name": "@watcher/shared-logic",
   "version": "0.0.1",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.js",
@@ -11,9 +11,9 @@
     "coverage": "vitest --run --coverage"
   },
   "author": "Peter Kinnaird <peter@kinnaird.scot>",
-  "repository": "https://github.com/PeteFromGlasgow/in-the-black.git",
+  "repository": "https://github.com/PeteFromGlasgow/the-watcher.git",
   "license": "ISC",
-  "description": "Shared logic for the in-the-black project",
+  "description": "Shared logic for The Watcher",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },

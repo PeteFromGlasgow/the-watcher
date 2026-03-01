@@ -1,7 +1,7 @@
 {
-  "name": "@in-the-black/cli",
+  "name": "@watcher/cli",
   "version": "1.0.1",
-  "description": "Command-line interface for the in-the-black project",
+  "description": "Command-line interface for The Watcher",
   "main": "dist/cli.js",
   "type": "module",
   "scripts": {
@@ -10,13 +10,11 @@
   },
   "keywords": [],
   "bin": {
-    "in-the-black": "dist/cli.js"
+    "watcher": "dist/cli.js"
   },
   "dependencies": {
-    "@in-the-black/shared-logic": "workspace:*",
-    "commander": "^14.0.2",
-    "open": "^11.0.0",
-    "openid-client": "^6.8.1"
+    "@watcher/shared-logic": "workspace:*",
+    "commander": "^14.0.2"
   },
   "author": "Peter Kinnaird <peter@kinnaird.scot>",
   "license": "ISC",
@@ -26,7 +24,6 @@
   "packageManager": "pnpm@10.6.4",
   "devDependencies": {
     "@types/node": "^25.0.9",
-    "@types/open": "^6.2.1",
     "@vitest/coverage-v8": "4.0.17",
     "vitest": "^4.0.17"
   }

@@ -2,7 +2,7 @@
   {
     "id": "api-gateway-public-health",
     "match": {
-      "url": "http://in-the-black.localhost/api/v1/",
+      "url": "http://watcher.localhost/api/v1/",
       "methods": [
         "GET"
       ]
@@ -27,7 +27,7 @@
   {
     "id": "api-gateway-public-signup",
     "match": {
-      "url": "http://in-the-black.localhost/api/v1/signup",
+      "url": "http://watcher.localhost/api/v1/signup",
       "methods": [
         "POST",
         "DELETE"
@@ -53,7 +53,7 @@
   {
     "id": "api-gateway-protected-accounts",
     "match": {
-      "url": "http://in-the-black.localhost/api/v1/accounts<.*>",
+      "url": "http://watcher.localhost/api/v1/accounts<.*>",
       "methods": [
         "GET",
         "POST",
@@ -90,7 +90,7 @@
   {
     "id": "api-gateway-protected-account-types",
     "match": {
-      "url": "http://in-the-black.localhost/api/v1/account-types<.*>",
+      "url": "http://watcher.localhost/api/v1/account-types<.*>",
       "methods": [
         "GET",
         "POST",
@@ -127,7 +127,7 @@
   {
     "id": "api-gateway-protected-currencies",
     "match": {
-      "url": "http://in-the-black.localhost/api/v1/currencies<.*>",
+      "url": "http://watcher.localhost/api/v1/currencies<.*>",
       "methods": [
         "GET",
         "POST",
@@ -164,7 +164,7 @@
   {
     "id": "api-gateway-cors",
     "match": {
-      "url": "http://in-the-black.localhost/api/v1/<.*>",
+      "url": "http://watcher.localhost/api/v1/<.*>",
       "methods": [
         "OPTIONS"
       ]

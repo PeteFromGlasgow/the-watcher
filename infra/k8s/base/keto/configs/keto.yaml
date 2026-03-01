@@ -8,5 +8,5 @@ serve:
 
 dsn: "env://DSN"
 namespaces:
-  - name: in_the_black
+  - name: watcher
     id: 1

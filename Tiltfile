@@ -1,9 +1,9 @@
-# Tiltfile for in-the-black
+# Tiltfile for the-watcher
 
 
 # --- Config ---
 # The name of the kind cluster used for local development
-KIND_CLUSTER_NAME = 'in-the-black-dev'
+KIND_CLUSTER_NAME = 'watcher-dev'
 
 # The path to the k8s manifests
 K8S_MANIFESTS_PATH = './infra/k8s/overlays/development'
@@ -21,10 +21,10 @@ k8s_yaml(kustomize(K8S_MANIFESTS_PATH))
 
 # --- Docker Builds ---
 custom_build(
-    'ghcr.io/petefromglasgow/in-the-black/api-gateway',
+    'ghcr.io/petefromglasgow/the-watcher/api-gateway',
     'docker build -t $EXPECTED_REF -f ./packages/api-gateway/Dockerfile --target build .',
     deps=['./packages/api-gateway', './pnpm-workspace.yaml', './package.json', './pnpm-lock.yaml'],
-    entrypoint=['pnpm', '--filter=@in-the-black/api-gateway', 'run', 'start:dev'],
+    entrypoint=['pnpm', '--filter=@watcher/api-gateway', 'run', 'start:dev'],
     live_update=[
         sync(
             './packages/api-gateway/dist',
@@ -42,37 +42,16 @@ custom_build(
 )
 
 custom_build(
-    'ghcr.io/petefromglasgow/in-the-black/webapp',
-    'docker build -t $EXPECTED_REF -f ./packages/webapp/Dockerfile --target build .',
-    deps=['./packages/webapp', './pnpm-workspace.yaml', './package.json', './pnpm-lock.yaml'],
-    entrypoint=['pnpm', '--filter=nuxt-app', 'run', 'dev'],
-    live_update=[
-        sync(
-            './packages/webapp/.output',
-            '/app/packages/webapp/.output'
-        ),
-        sync(
-            './packages/webapp/app',
-            '/app/packages/webapp/app',
-        ),
-        sync(
-            './packages/webapp/public',
-            '/app/packages/webapp/public',
-        )
-    ]
-)
-
-custom_build(
-    'ghcr.io/petefromglasgow/in-the-black/db-migrations',
+    'ghcr.io/petefromglasgow/the-watcher/db-migrations',
     'docker build -t $EXPECTED_REF -f ./packages/db/Dockerfile .',
     deps=['./packages/db', './pnpm-workspace.yaml', './package.json', './pnpm-lock.yaml']
 )
 
 custom_build(
-    'ghcr.io/petefromglasgow/in-the-black/api',
+    'ghcr.io/petefromglasgow/the-watcher/api',
     'docker build -t $EXPECTED_REF -f ./packages/api/Dockerfile --target build .',
     deps=['./packages/api', './pnpm-workspace.yaml', './package.json', './pnpm-lock.yaml'],
-    entrypoint=['pnpm', '--filter=@in-the-black/api', 'run', 'start:dev'],
+    entrypoint=['pnpm', '--filter=@watcher/api', 'run', 'start:dev'],
     live_update=[
         sync(
             './packages/api/dist',
@@ -96,10 +75,7 @@ DEFAULT_REGISTRY = os.environ.get('TILT_DEFAULT_REGISTRY', 'localhost:5000')
 default_registry(DEFAULT_REGISTRY)
 
 # --- Port Forwards ---
-# This section will be populated as we add services
-# Port forwards have been replaced by Kubernetes Gateway API
 k8s_resource("api-gateway", labels="application")
-k8s_resource("webapp", labels="application")
 k8s_resource("api", labels="application")
 
 k8s_resource("hydra", labels="auth")
@@ -112,6 +88,8 @@ k8s_resource("db-migrations", labels="databases")
 
 k8s_resource('mailpit', labels="tooling")
 k8s_resource('kratos-admin-ui', labels="tooling")
+k8s_resource('flaresolverr', labels="tooling")
+k8s_resource('clip-service', labels="tooling")
 
 # --- Local Resources ---
 local_resource(

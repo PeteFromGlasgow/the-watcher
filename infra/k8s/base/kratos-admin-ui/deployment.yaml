@@ -22,6 +22,6 @@ spec:
               containerPort: 8080
           env:
             - name: KRATOS_ADMIN_URL
-              value: "http://kratos.in-the-black.svc.cluster.local:4434"
+              value: "http://kratos.watcher.svc.cluster.local:4434"
             - name: KRATOS_PUBLIC_URL
-              value: "http://kratos.in-the-black.svc.cluster.local:4433"
+              value: "http://kratos.watcher.svc.cluster.local:4433"

@@ -1,11 +1,11 @@
 version: v1.3.1
 serve:
   public:
-    base_url: http://in-the-black.localhost/api/v1/identity
+    base_url: http://watcher.localhost/api/v1/identity
     cors:
       enabled: true
       allowed_origins:
-        - http://in-the-black.localhost
+        - http://watcher.localhost
       allowed_headers:
         - Authorization
         - Content-Type
@@ -20,33 +20,33 @@ courier:
     connection_uri: smtp://test:test@mailpit:1025
     from_address: no-reply@example.com
 selfservice:
-  default_browser_return_url: http://in-the-black.localhost/
+  default_browser_return_url: http://watcher.localhost/
   methods:
     password:
       enabled: true
   flows:
     error:
-      ui_url: http://in-the-black.localhost/error
+      ui_url: http://watcher.localhost/error
     settings:
-      ui_url: http://in-the-black.localhost/settings
+      ui_url: http://watcher.localhost/settings
       privileged_session_max_age: 15m
     recovery:
       enabled: true
-      ui_url: http://in-the-black.localhost/recovery
+      ui_url: http://watcher.localhost/recovery
     verification:
       enabled: true
-      ui_url: http://in-the-black.localhost/verification
+      ui_url: http://watcher.localhost/verification
       after:
-        default_browser_return_url: http://in-the-black.localhost/
+        default_browser_return_url: http://watcher.localhost/
     logout:
       after:
-        default_browser_return_url: http://in-the-black.localhost/login
+        default_browser_return_url: http://watcher.localhost/login
     login:
-      ui_url: http://in-the-black.localhost/login
+      ui_url: http://watcher.localhost/login
       lifespan: 12h
     registration:
       lifespan: 10m
-      ui_url: http://in-the-black.localhost/registration
+      ui_url: http://watcher.localhost/registration
       after:
         password:
           hooks:
