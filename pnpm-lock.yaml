@@ -210,6 +210,9 @@ importers:
 
   packages/pipeline:
     dependencies:
+      '@google/generative-ai':
+        specifier: ^0.24.1
+        version: 0.24.1
       '@watcher/db':
         specifier: workspace:*
         version: link:../db
@@ -585,6 +588,10 @@ packages:
 
   '@fastify/swagger@9.6.1':
     resolution: {integrity: sha512-fKlpJqFMWoi4H3EdUkDaMteEYRCfQMEkK0HJJ0eaf4aRlKd8cbq0pVkOfXDXmtvMTXYcnx3E+l023eFDBsA1HA==}
+
+  '@google/generative-ai@0.24.1':
+    resolution: {integrity: sha512-MqO+MLfM6kjxcKoy0p1wRzG3b4ZZXtPI+z2IE26UogS2Cm/XHO+7gGRBh6gcJsOiIVoH93UwKvW4HdgiOZCy9Q==}
+    engines: {node: '>=18.0.0'}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -3012,6 +3019,8 @@ snapshots:
       yaml: 2.8.2
     transitivePeerDependencies:
       - supports-color
+
+  '@google/generative-ai@0.24.1': {}
 
   '@humanfs/core@0.19.1': {}
 
