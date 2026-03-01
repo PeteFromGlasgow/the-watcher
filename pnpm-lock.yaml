@@ -210,6 +210,12 @@ importers:
 
   packages/pipeline:
     dependencies:
+      '@watcher/db':
+        specifier: workspace:*
+        version: link:../db
+      '@watcher/embedding-client':
+        specifier: workspace:*
+        version: link:../embedding-client
       '@watcher/shared-logic':
         specifier: workspace:*
         version: link:../core
