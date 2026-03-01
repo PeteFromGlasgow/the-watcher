@@ -30,6 +30,6 @@ export class HttpTransport implements Transport {
       throw new Error(`CAPTCHA or bot challenge detected at ${context.url}`)
     }
 
-    return { html, transportUsed: 'http' }
+    return { type: 'html', html, transportUsed: 'http' }
   }
 }

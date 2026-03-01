@@ -9,6 +9,7 @@ export interface TransportChainConfig {
 }
 
 export interface HtmlTransportResult {
+  type: 'html'
   html: string
   transportUsed: string
   statusCode?: number

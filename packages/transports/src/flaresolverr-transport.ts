@@ -35,6 +35,6 @@ export class FlareSolverrTransport implements Transport {
       throw new Error(`FlareSolverr upstream HTTP ${data.solution.status} for ${context.url}`)
     }
 
-    return { html: data.solution.response, transportUsed: 'flaresolverr' }
+    return { type: 'html', html: data.solution.response, transportUsed: 'flaresolverr' }
   }
 }
