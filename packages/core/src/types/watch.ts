@@ -1,4 +1,5 @@
 import type { TransportChainConfig } from './transport-chain.js'
+import type { NotifierConfig } from './notifier.js'
 
 export type WatchStatus = 'active' | 'paused' | 'archived'
 
@@ -38,4 +39,6 @@ export interface Watch {
   similarityThreshold?: number
   llmQuestions?: string[]
   llmConfig?: LlmConfig
+  // Notification channels (Epic 5)
+  notifiers?: NotifierConfig[]
 }

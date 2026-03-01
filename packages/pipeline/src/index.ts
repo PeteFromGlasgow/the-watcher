@@ -10,6 +10,7 @@ import {
 } from '@watcher/transports'
 import { adapterRegistry } from '@watcher/adapters'
 import { getKnex } from '@watcher/db'
+import { createNotifiers, isAlreadyNotified, recordNotification } from '@watcher/notifiers'
 import { enrichPricing } from './price-extraction.js'
 import { downloadAndStoreImages } from './image-download.js'
 import { checkDuplicate } from './deduplication.js'
@@ -75,7 +76,9 @@ export async function runWatch(watchId: string, deps: RunWatchDeps = {}): Promis
 
   let newListings = 0
   let duplicatesSkipped = 0
-  const notificationsSent = 0
+  let notificationsSent = 0
+
+  const notifiers = createNotifiers(watch)
 
   for (const raw of scrapedListings) {
     try {
@@ -110,9 +113,38 @@ export async function runWatch(watchId: string, deps: RunWatchDeps = {}): Promis
         continue
       }
 
-      await runLlmAnalysis(listing, watch)
+      listing.llmAnalysis = await runLlmAnalysis(listing, watch)
 
-      // TODO(WCH-29): send notifications via configured notifiers
+      if (notifiers.length > 0) {
+        // Filter out already-notified channels concurrently
+        const dedupeResults = await Promise.allSettled(
+          notifiers.map(notifier => isAlreadyNotified(listing.id, watchId, notifier.name, knex))
+        )
+
+        const pendingNotifiers = notifiers.filter((_, i) => {
+          const result = dedupeResults[i]
+          return result.status === 'fulfilled' && result.value === false
+        })
+
+        // Dispatch all pending notifiers concurrently
+        const sendResults = await Promise.allSettled(
+          pendingNotifiers.map(notifier => notifier.send(listing, watch))
+        )
+
+        // Record outcomes
+        await Promise.allSettled(
+          pendingNotifiers.map((notifier, i) => {
+            const result = sendResults[i]
+            if (result.status === 'fulfilled') {
+              notificationsSent++
+              return recordNotification(listing.id, watchId, notifier.name, 'sent', null, knex)
+            } else {
+              errors.push(`Notifier ${notifier.name} failed: ${result.reason}`)
+              return recordNotification(listing.id, watchId, notifier.name, 'failed', String(result.reason), knex)
+            }
+          })
+        )
+      }
 
       newListings++
     } catch (err) {

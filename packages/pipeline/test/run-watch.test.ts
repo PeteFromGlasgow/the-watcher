@@ -5,6 +5,12 @@ vi.mock('../src/price-extraction.js', () => ({ enrichPricing: vi.fn() }))
 vi.mock('../src/image-download.js', () => ({ downloadAndStoreImages: vi.fn() }))
 vi.mock('../src/deduplication.js', () => ({ checkDuplicate: vi.fn() }))
 vi.mock('../src/llm-analysis.js', () => ({ runLlmAnalysis: vi.fn() }))
+vi.mock('@watcher/notifiers', () => ({
+  createNotifiers: vi.fn().mockReturnValue([]),
+  isAlreadyNotified: vi.fn().mockResolvedValue(false),
+  recordNotification: vi.fn().mockResolvedValue(undefined)
+}))
+vi.mock('@watcher/db', () => ({ getKnex: vi.fn() }))
 
 import { enrichPricing } from '../src/price-extraction.js'
 import { downloadAndStoreImages } from '../src/image-download.js'
