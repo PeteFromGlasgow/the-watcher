@@ -1,6 +1,7 @@
 import OpenAI from 'openai'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import type { ScrapedListing, Watch } from '@watcher/shared-logic'
+import type { RunLogger } from './logger.js'
 
 async function fetchImageAsBase64(url: string): Promise<{ data: string, mimeType: string } | null> {
   try {
@@ -98,7 +99,8 @@ async function runGoogleAnalysis(
 
 export async function runLlmAnalysis(
   listing: ScrapedListing,
-  watch: Watch
+  watch: Watch,
+  logger?: RunLogger
 ): Promise<Record<string, unknown> | null> {
   if (!watch.llmQuestions?.length) return null
   if (!listing.images?.length) return null
@@ -116,7 +118,7 @@ export async function runLlmAnalysis(
       return await runOpenAiAnalysis(listing, watch, questionsText)
     }
   } catch (err) {
-    console.warn(`LLM analysis failed for listing ${listing.id} (${provider}): ${err}`)
+    logger?.warn({ stage: 'llm_analysis', listing_id: listing.id, provider, err }, 'LLM analysis failed')
     return null
   }
 }

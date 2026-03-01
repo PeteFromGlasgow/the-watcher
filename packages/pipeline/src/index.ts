@@ -15,6 +15,7 @@ import { enrichPricing } from './price-extraction.js'
 import { downloadAndStoreImages } from './image-download.js'
 import { checkDuplicate } from './deduplication.js'
 import { runLlmAnalysis } from './llm-analysis.js'
+import { createRunLogger } from './logger.js'
 
 export interface RunWatchDeps {
   knex?: Knex
@@ -54,10 +55,14 @@ export async function runWatch(watchId: string, deps: RunWatchDeps = {}): Promis
   const watch = await knex('watches').where({ id: watchId }).first() as Watch | undefined
   if (!watch) throw new Error(`Watch not found: ${watchId}`)
 
+  const log = createRunLogger(watchId, runId, watch.adapter)
+  log.info({ stage: 'run', transport_chain: watch.transport?.chain }, 'Watch run started')
+
   let scrapedListings: ScrapedListing[] = []
   let transportUsed: string | null = null
 
   if (watch.transport?.chain?.length) {
+    log.info({ stage: 'scrape', transport_chain: watch.transport.chain }, 'Starting scrape')
     try {
       const context = { url: watch.url ?? '', options: {} }
       const result = await resolver.resolve(watch.transport, context)
@@ -67,10 +72,12 @@ export async function runWatch(watchId: string, deps: RunWatchDeps = {}): Promis
       if (!adapter) throw new Error(`Unknown adapter: ${watch.adapter}`)
 
       scrapedListings = await adapter.extract(result, watch)
+      log.info({ stage: 'scrape', transport_used: transportUsed, listings_found: scrapedListings.length }, 'Scrape complete')
 
       if (result.type === 'page') await result.page.close()
     } catch (err) {
       errors.push(`Scrape failed: ${err}`)
+      log.error({ stage: 'scrape', err }, 'Scrape failed')
     }
   }
 
@@ -81,10 +88,14 @@ export async function runWatch(watchId: string, deps: RunWatchDeps = {}): Promis
   const notifiers = createNotifiers(watch)
 
   for (const raw of scrapedListings) {
+    const listingLog = log.child({ stage: 'listing', listing_id: raw.id })
     try {
       const listing = await enrichPricing(raw)
 
-      if (!passesFilters(listing, watch)) continue
+      if (!passesFilters(listing, watch)) {
+        listingLog.debug('Listing filtered out')
+        continue
+      }
 
       const now = new Date().toISOString()
       await knex('listings').insert({
@@ -105,15 +116,16 @@ export async function runWatch(watchId: string, deps: RunWatchDeps = {}): Promis
       await downloadAndStoreImages(listing.id, listing.images, knex)
 
       const { isDuplicate } = await checkDuplicate(
-        listing.id, listing.images, watch.similarityThreshold ?? 0.85, knex
+        listing.id, listing.images, watch.similarityThreshold ?? 0.85, knex, log
       )
 
       if (isDuplicate) {
         duplicatesSkipped++
+        listingLog.debug('Duplicate listing skipped')
         continue
       }
 
-      listing.llmAnalysis = await runLlmAnalysis(listing, watch)
+      listing.llmAnalysis = await runLlmAnalysis(listing, watch, log)
 
       if (notifiers.length > 0) {
         // Filter out already-notified channels concurrently
@@ -137,9 +149,11 @@ export async function runWatch(watchId: string, deps: RunWatchDeps = {}): Promis
             const result = sendResults[i]
             if (result.status === 'fulfilled') {
               notificationsSent++
+              listingLog.info({ stage: 'notification', notifier: notifier.name }, 'Notification sent')
               return recordNotification(listing.id, watchId, notifier.name, 'sent', null, knex)
             } else {
               errors.push(`Notifier ${notifier.name} failed: ${result.reason}`)
+              listingLog.warn({ stage: 'notification', notifier: notifier.name, err: result.reason }, 'Notification failed')
               return recordNotification(listing.id, watchId, notifier.name, 'failed', String(result.reason), knex)
             }
           })
@@ -149,19 +163,37 @@ export async function runWatch(watchId: string, deps: RunWatchDeps = {}): Promis
       newListings++
     } catch (err) {
       errors.push(`Listing ${raw.id} failed: ${err}`)
+      listingLog.error({ err }, 'Listing processing failed')
     }
   }
 
   const completedAt = new Date()
   const durationMs = completedAt.getTime() - startedAt.getTime()
+  const status = errors.length > 0 ? 'error' : (newListings > 0 ? 'ok' : 'no_change')
 
   await knex('run_log').insert({
     watch_id: watchId,
-    status: errors.length > 0 ? 'error' : (newListings > 0 ? 'ok' : 'no_change'),
+    status,
+    transport_chain: watch.transport ? JSON.stringify(watch.transport) : null,
+    transport_used: transportUsed,
+    listings_found: scrapedListings.length,
     new_listings_count: newListings,
+    duplicate_count: duplicatesSkipped,
+    notifications_sent_count: notificationsSent,
     error: errors.length > 0 ? errors.join('\n') : null,
     duration_ms: durationMs
   })
+
+  log.info({
+    stage: 'run',
+    status,
+    transport_used: transportUsed,
+    listings_found: scrapedListings.length,
+    new_listings: newListings,
+    duplicates_skipped: duplicatesSkipped,
+    notifications_sent: notificationsSent,
+    duration_ms: durationMs
+  }, 'Watch run complete')
 
   return {
     watchId,

@@ -227,14 +227,11 @@ describe('runLlmAnalysis', () => {
     })
   })
 
-  it('returns null and logs when LLM throws', async () => {
+  it('returns null when LLM throws', async () => {
     mockOpenAiCreate.mockRejectedValue(new Error('OpenAI unavailable'))
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     const result = await runLlmAnalysis(makeScrapedListing(), makeWatch())
 
     expect(result).toBeNull()
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('LLM analysis failed'))
-    warnSpy.mockRestore()
   })
 })

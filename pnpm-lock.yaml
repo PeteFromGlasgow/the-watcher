@@ -262,6 +262,9 @@ importers:
       openai:
         specifier: ^4.78.1
         version: 4.104.0(ws@8.19.0)
+      pino:
+        specifier: ^10.0.0
+        version: 10.2.0
     devDependencies:
       '@types/node':
         specifier: ^25.0.9
@@ -287,6 +290,9 @@ importers:
       '@watcher/transports':
         specifier: workspace:*
         version: link:../transports
+      pino:
+        specifier: ^10.0.0
+        version: 10.2.0
     devDependencies:
       '@types/node':
         specifier: ^25.0.9
@@ -3534,6 +3540,7 @@ snapshots:
       '@watcher/transports': file:packages/transports
       knex: 3.1.0(pg@8.17.1)
       openai: 4.104.0(ws@8.19.0)
+      pino: 10.2.0
     transitivePeerDependencies:
       - better-sqlite3
       - encoding

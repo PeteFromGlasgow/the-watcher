@@ -1,6 +1,7 @@
 import { embed } from '@watcher/embedding-client'
 import { findSimilarImages } from '@watcher/db'
 import type { Knex } from 'knex'
+import type { RunLogger } from './logger.js'
 
 export interface DeduplicationResult {
   isDuplicate: boolean
@@ -12,7 +13,8 @@ export async function checkDuplicate(
   listingId: string,
   imageUrls: string[],
   similarityThreshold: number,
-  knex: Knex
+  knex: Knex,
+  logger?: RunLogger
 ): Promise<DeduplicationResult> {
   if (imageUrls.length === 0) {
     return { isDuplicate: false, duplicateOf: null, embedding: null }
@@ -24,7 +26,7 @@ export async function checkDuplicate(
   try {
     embedding = await embed({ url: primaryImageUrl })
   } catch (err) {
-    console.warn(`Failed to embed image for listing ${listingId}: ${err}`)
+    logger?.warn({ stage: 'deduplication', listing_id: listingId, err }, 'Failed to embed image')
     return { isDuplicate: false, duplicateOf: null, embedding: null }
   }
 
