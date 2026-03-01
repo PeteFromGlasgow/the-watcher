@@ -8,8 +8,17 @@ export interface TransportChainConfig {
   chain: TransportEntry[]
 }
 
-export interface TransportResult {
+export interface HtmlTransportResult {
   html: string
   transportUsed: string
   statusCode?: number
 }
+
+export interface PageTransportResult {
+  type: 'page'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  page: any
+  transportUsed: string
+}
+
+export type TransportResult = HtmlTransportResult | PageTransportResult

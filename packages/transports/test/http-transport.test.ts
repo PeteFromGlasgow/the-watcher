@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import type { HtmlTransportResult } from '@watcher/shared-logic'
 import { HttpTransport } from '../src/http-transport.js'
 
 const transport = new HttpTransport()
@@ -25,7 +26,7 @@ describe('HttpTransport', () => {
     it('returns html and transportUsed on success', async () => {
       mockFetch(200, '<html><body>Hello</body></html>')
 
-      const result = await transport.execute({ url: 'https://example.com' })
+      const result = await transport.execute({ url: 'https://example.com' }) as HtmlTransportResult
 
       expect(result.html).toBe('<html><body>Hello</body></html>')
       expect(result.transportUsed).toBe('http')

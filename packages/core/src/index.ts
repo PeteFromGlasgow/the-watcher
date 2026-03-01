@@ -14,6 +14,8 @@ export type {
   TransportEntry,
   TransportChainConfig,
   TransportResult,
+  HtmlTransportResult,
+  PageTransportResult,
   Adapter,
   AdapterResult,
   Notifier,

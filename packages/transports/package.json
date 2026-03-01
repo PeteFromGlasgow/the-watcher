@@ -18,7 +18,8 @@
     "registry": "https://npm.pkg.github.com/"
   },
   "dependencies": {
-    "@watcher/shared-logic": "workspace:*"
+    "@watcher/shared-logic": "workspace:*",
+    "playwright": "^1.52.0"
   },
   "devDependencies": {
     "@types/node": "^25.0.9",

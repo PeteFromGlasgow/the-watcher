@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import type { TransportChainConfig } from '@watcher/shared-logic'
+import type { TransportChainConfig, HtmlTransportResult } from '@watcher/shared-logic'
 import type { Transport, TransportContext } from '../src/transport.js'
 import { TransportResolver } from '../src/resolver.js'
 
@@ -26,7 +26,7 @@ describe('TransportResolver', () => {
       const resolver = new TransportResolver(new Map([['http', transport]]))
       const chain: TransportChainConfig = { chain: [{ name: 'http' }] }
 
-      const result = await resolver.resolve(chain, context)
+      const result = await resolver.resolve(chain, context) as HtmlTransportResult
 
       expect(result.html).toBe('<html>ok</html>')
       expect(result.transportUsed).toBe('http')
@@ -53,7 +53,7 @@ describe('TransportResolver', () => {
       ]))
       const chain: TransportChainConfig = { chain: [{ name: 'http' }, { name: 'flaresolverr' }] }
 
-      const result = await resolver.resolve(chain, context)
+      const result = await resolver.resolve(chain, context) as HtmlTransportResult
 
       expect(result.html).toBe('<html>first</html>')
       expect(result.transportUsed).toBe('http')
@@ -69,7 +69,7 @@ describe('TransportResolver', () => {
       ]))
       const chain: TransportChainConfig = { chain: [{ name: 'http' }, { name: 'flaresolverr' }] }
 
-      const result = await resolver.resolve(chain, context)
+      const result = await resolver.resolve(chain, context) as HtmlTransportResult
 
       expect(result.html).toBe('<html>second</html>')
       expect(result.transportUsed).toBe('flaresolverr')
