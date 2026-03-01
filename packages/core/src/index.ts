@@ -11,6 +11,7 @@ export type {
   GenericHtmlOptions,
   Watch,
   WatchStatus,
+  WatchFilters,
   TransportType,
   TransportConfig,
   TransportEntry,
