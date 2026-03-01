@@ -139,6 +139,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@watcher/pipeline':
+        specifier: workspace:*
+        version: file:packages/pipeline(ws@8.19.0)
       '@watcher/shared-logic':
         specifier: workspace:*
         version: link:../core
@@ -210,6 +213,9 @@ importers:
 
   packages/pipeline:
     dependencies:
+      '@watcher/adapters':
+        specifier: workspace:*
+        version: link:../adapters
       '@watcher/db':
         specifier: workspace:*
         version: link:../db
@@ -219,6 +225,9 @@ importers:
       '@watcher/shared-logic':
         specifier: workspace:*
         version: link:../core
+      '@watcher/transports':
+        specifier: workspace:*
+        version: link:../transports
       knex:
         specifier: ^3.1.0
         version: 3.1.0(pg@8.17.1)
@@ -943,6 +952,24 @@ packages:
 
   '@vitest/utils@4.0.17':
     resolution: {integrity: sha512-RG6iy+IzQpa9SB8HAFHJ9Y+pTzI+h8553MrciN9eC6TFBErqrQaTas4vG+MVj8S4uKk8uTT2p0vgZPnTdxd96w==}
+
+  '@watcher/adapters@file:packages/adapters':
+    resolution: {directory: packages/adapters, type: directory}
+
+  '@watcher/db@file:packages/db':
+    resolution: {directory: packages/db, type: directory}
+
+  '@watcher/embedding-client@file:packages/embedding-client':
+    resolution: {directory: packages/embedding-client, type: directory}
+
+  '@watcher/pipeline@file:packages/pipeline':
+    resolution: {directory: packages/pipeline, type: directory}
+
+  '@watcher/shared-logic@file:packages/core':
+    resolution: {directory: packages/core, type: directory}
+
+  '@watcher/transports@file:packages/transports':
+    resolution: {directory: packages/transports, type: directory}
 
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
@@ -3396,6 +3423,58 @@ snapshots:
     dependencies:
       '@vitest/pretty-format': 4.0.17
       tinyrainbow: 3.0.3
+
+  '@watcher/adapters@file:packages/adapters':
+    dependencies:
+      '@watcher/shared-logic': file:packages/core
+      cheerio: 1.2.0
+      playwright: 1.58.1
+
+  '@watcher/db@file:packages/db':
+    dependencies:
+      csv-parse: 6.1.0
+      dotenv: 17.2.3
+      knex: 3.1.0(pg@8.17.1)
+      pg: 8.17.1
+    transitivePeerDependencies:
+      - better-sqlite3
+      - mysql
+      - mysql2
+      - pg-native
+      - sqlite3
+      - supports-color
+      - tedious
+
+  '@watcher/embedding-client@file:packages/embedding-client': {}
+
+  '@watcher/pipeline@file:packages/pipeline(ws@8.19.0)':
+    dependencies:
+      '@watcher/adapters': file:packages/adapters
+      '@watcher/db': file:packages/db
+      '@watcher/embedding-client': file:packages/embedding-client
+      '@watcher/shared-logic': file:packages/core
+      '@watcher/transports': file:packages/transports
+      knex: 3.1.0(pg@8.17.1)
+      openai: 4.104.0(ws@8.19.0)
+    transitivePeerDependencies:
+      - better-sqlite3
+      - encoding
+      - mysql
+      - mysql2
+      - pg
+      - pg-native
+      - sqlite3
+      - supports-color
+      - tedious
+      - ws
+      - zod
+
+  '@watcher/shared-logic@file:packages/core': {}
+
+  '@watcher/transports@file:packages/transports':
+    dependencies:
+      '@watcher/shared-logic': file:packages/core
+      playwright: 1.58.1
 
   abort-controller@3.0.0:
     dependencies:
