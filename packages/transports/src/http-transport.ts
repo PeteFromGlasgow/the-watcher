@@ -23,9 +23,9 @@ export class HttpTransport implements Transport {
     const html = await response.text()
 
     if (
-      html.includes('cf-challenge-running') ||
-      html.includes('Checking your browser') ||
-      html.includes('g-recaptcha')
+      html.includes('cf-challenge-running')
+      || html.includes('Checking your browser')
+      || html.includes('g-recaptcha')
     ) {
       throw new Error(`CAPTCHA or bot challenge detected at ${context.url}`)
     }
