@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@watcher/shared-logic": "workspace:*",
+    "knex": "^3.1.0",
     "openai": "^4.78.1"
   },
   "devDependencies": {
