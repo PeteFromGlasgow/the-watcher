@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@watcher/shared-logic": "workspace:*",
+    "@watcher/pipeline": "workspace:*",
     "commander": "^14.0.2"
   },
   "author": "Peter Kinnaird <peter@kinnaird.scot>",

@@ -1,7 +1,18 @@
+import knexFactory from 'knex'
 import type { Knex } from 'knex'
 import { similarListingImages } from './helpers/similarity.js'
 
 export { similarListingImages }
+
+let _knex: Knex | null = null
+
+/** Returns a shared Knex instance configured from DATABASE_URL. */
+export function getKnex(): Knex {
+  if (!_knex) {
+    _knex = knexFactory({ client: 'pg', connection: process.env['DATABASE_URL'] })
+  }
+  return _knex
+}
 
 /**
  * Find listing_images records whose embeddings are within the given cosine
