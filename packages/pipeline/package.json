@@ -18,9 +18,10 @@
     "registry": "https://npm.pkg.github.com/"
   },
   "dependencies": {
-    "@watcher/shared-logic": "workspace:*",
+    "@google/generative-ai": "^0.24.1",
     "@watcher/db": "workspace:*",
     "@watcher/embedding-client": "workspace:*",
+    "@watcher/shared-logic": "workspace:*",
     "knex": "^3.1.0",
     "openai": "^4.78.1"
   },

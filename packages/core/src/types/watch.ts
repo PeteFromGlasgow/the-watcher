@@ -11,6 +11,13 @@ export interface WatchFilters {
   }
 }
 
+export interface LlmConfig {
+  provider: 'openai' | 'google'
+  model?: string
+  baseURL?: string // For OpenAI compatible hosts
+  apiKey?: string // Optional, defaults to env var
+}
+
 export interface Watch {
   id: string
   user_id: string
@@ -30,4 +37,5 @@ export interface Watch {
   filters?: WatchFilters
   similarityThreshold?: number
   llmQuestions?: string[]
+  llmConfig?: LlmConfig
 }
