@@ -68,6 +68,12 @@ custom_build(
     ]
 )
 
+docker_build(
+    'ghcr.io/petefromglasgow/the-watcher/clip-service',
+    './packages/clip-service',
+    dockerfile='./packages/clip-service/Dockerfile'
+)
+
 # --- Default Registry ---
 # Use the value of the TILT_DEFAULT_REGISTRY environment variable, if it's set.
 # Otherwise, use the default value.
