@@ -1,0 +1,109 @@
+name: Docker Build (Services)
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+    paths:
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'packages/**'
+      - '.github/workflows/docker-build.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: api
+            dockerfile: packages/api/Dockerfile
+            context: .
+            target: api
+          - service: api-gateway
+            dockerfile: packages/api-gateway/Dockerfile
+            context: .
+            target: api-gateway
+          - service: db-migrations
+            dockerfile: packages/db/Dockerfile
+            context: .
+            target: db-migrations
+          - service: clip-service
+            dockerfile: packages/clip-service/Dockerfile
+            context: packages/clip-service
+            target: ''
+          - service: operator
+            dockerfile: packages/operator/Dockerfile
+            context: packages/operator
+            target: ''
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - run: echo "REPO=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ env.REPO }}/${{ matrix.service }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+
+      # Build and load locally first so Trivy can scan before we push (main branch only)
+      - name: Build and load (for scanning)
+        if: github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          target: ${{ matrix.target }}
+          push: false
+          load: true
+          tags: ghcr.io/${{ env.REPO }}/${{ matrix.service }}:scan
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+      - name: Run Trivy vulnerability scanner
+        if: github.ref == 'refs/heads/main'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/${{ env.REPO }}/${{ matrix.service }}:scan
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      # Build and push with proper tags (cache hit from scan build makes this fast)
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          target: ${{ matrix.target }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}

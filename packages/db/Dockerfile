@@ -31,7 +31,7 @@ RUN pnpm deploy --filter={./packages/db} /prod/db
 FROM debian:${DEBIAN_VERSION}-slim AS db-migrations
 
 # Best Practice: Add metadata labels to your image.
-LABEL org.opencontainers.image.source=https://github.com/PeteFromGlasgow/in-the-black
+LABEL org.opencontainers.image.source=https://github.com/PeteFromGlasgow/the-watcher
 
 WORKDIR /usr/src/app
 
