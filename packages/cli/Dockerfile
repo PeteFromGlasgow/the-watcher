@@ -26,15 +26,15 @@ COPY . .
 
 # Build and create a clean production-only package using pnpm deploy.
 # It's more efficient to filter the build command as well.
-RUN pnpm run build --filter=@PeteFromGlasgow/typescript-cli-template-cli
-RUN pnpm deploy --filter=@PeteFromGlasgow/typescript-cli-template-cli /prod/cli
+RUN pnpm --filter=@watcher/cli... run build
+RUN pnpm deploy --filter=@watcher/cli /prod/cli
 
 # ---- Production Stage ----
 # Creates a minimal, secure image for running the service.
 FROM alpine:${ALPINE_VERSION} AS cli
 
 # Best Practice: Add metadata labels to your image.
-LABEL org.opencontainers.image.source=https://github.com/PeteFromGlasgow/in-the-black
+LABEL org.opencontainers.image.source=https://github.com/PeteFromGlasgow/the-watcher
 
 WORKDIR /usr/src/app
 
@@ -57,4 +57,4 @@ USER node
 # Best Practice: Use 'dumb-init' to start your application.
 # This ensures that signals like SIGTERM (from 'docker stop') are handled correctly,
 # allowing for a graceful shutdown of your application.
-ENTRYPOINT ["dumb-init", "node", "dist/src/app.js"]
+ENTRYPOINT ["dumb-init", "node", "dist/cli.js"]
